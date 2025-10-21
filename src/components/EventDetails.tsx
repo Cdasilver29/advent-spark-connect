@@ -12,8 +12,8 @@ const EventDetails = () => {
     {
       icon: Clock,
       label: "Time",
-      value: "6:00 PM - 11:00 PM",
-      description: "Evening of connection",
+      value: "1:00 PM - 7:00 PM",
+      description: "Afternoon of connection",
     },
     {
       icon: MapPin,

@@ -12,9 +12,9 @@ const Tickets = () => {
 
   const ticketTiers = [
     {
-      name: "Early Bird",
-      price: "KES 2,500",
-      originalPrice: "KES 3,500",
+      name: "Ages 21-28 (Early Bird)",
+      price: "KES 1,500",
+      originalPrice: "KES 2,000",
       description: "Limited time offer",
       features: [
         "Full event access",
@@ -26,9 +26,9 @@ const Tickets = () => {
       popular: false,
     },
     {
-      name: "Standard",
-      price: "KES 3,500",
-      description: "Regular admission",
+      name: "Ages 21-28 (Standard)",
+      price: "KES 2,000",
+      description: "Young adults",
       features: [
         "Full event access",
         "All activities included",
@@ -40,9 +40,39 @@ const Tickets = () => {
       popular: true,
     },
     {
+      name: "Ages 28-40+ (Early Bird)",
+      price: "KES 2,000",
+      originalPrice: "KES 2,500",
+      description: "Limited time offer",
+      features: [
+        "Full event access",
+        "All activities included",
+        "Welcome refreshments",
+        "Name tag & materials",
+        "Match coordination service",
+        "Event photos",
+      ],
+      popular: false,
+    },
+    {
+      name: "Ages 28-40+ (Standard)",
+      price: "KES 2,500",
+      description: "Adults",
+      features: [
+        "Full event access",
+        "All activities included",
+        "Welcome refreshments",
+        "Name tag & materials",
+        "Match coordination service",
+        "Event photos",
+        "Priority match coordination",
+      ],
+      popular: false,
+    },
+    {
       name: "VIP Experience",
       price: "KES 5,000",
-      description: "Premium package",
+      description: "Premium package (All ages)",
       features: [
         "Full event access",
         "All activities included",
@@ -73,7 +103,7 @@ const Tickets = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {ticketTiers.map((tier, index) => (
             <Card 
               key={index}
