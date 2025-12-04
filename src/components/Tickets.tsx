@@ -1,13 +1,26 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import MpesaPaymentDialog from "./MpesaPaymentDialog";
+
+interface SelectedTicket {
+  name: string;
+  price: number;
+}
 
 const Tickets = () => {
-  const handlePurchase = (ticketType: string) => {
-    toast.info("Ticket purchasing will be available soon!", {
-      description: "We're setting up secure payment integration. Stay tuned!",
-    });
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<SelectedTicket | null>(null);
+
+  const handlePurchase = (ticketName: string, price: number) => {
+    setSelectedTicket({ name: ticketName, price });
+    setPaymentDialogOpen(true);
+  };
+
+  // Extract numeric price from string
+  const parsePrice = (priceStr: string): number => {
+    return parseInt(priceStr.replace(/[^0-9]/g, ""), 10);
   };
 
   const ticketTiers = [
@@ -145,7 +158,7 @@ const Tickets = () => {
                 </ul>
                 
                 <Button 
-                  onClick={() => handlePurchase(tier.name)}
+                  onClick={() => handlePurchase(tier.name, parsePrice(tier.price))}
                   className={`w-full ${
                     tier.popular 
                       ? 'bg-gradient-gold hover:opacity-90 text-foreground' 
@@ -161,13 +174,22 @@ const Tickets = () => {
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
-            Payment options: M-PESA, Bank Transfer, Card Payment
+            Payment via M-PESA • Instant confirmation
           </p>
           <p className="text-sm text-muted-foreground">
-            Secure payment integration coming soon. For early inquiries, contact us below.
+            Secure payment powered by Safaricom Daraja API
           </p>
         </div>
       </div>
+
+      {selectedTicket && (
+        <MpesaPaymentDialog
+          open={paymentDialogOpen}
+          onOpenChange={setPaymentDialogOpen}
+          ticketType={selectedTicket.name}
+          amount={selectedTicket.price}
+        />
+      )}
     </section>
   );
 };
