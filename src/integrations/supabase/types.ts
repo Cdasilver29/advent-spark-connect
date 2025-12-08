@@ -62,12 +62,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_inventory: {
+        Row: {
+          created_at: string
+          id: string
+          max_quantity: number
+          sold_quantity: number
+          ticket_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_quantity?: number
+          sold_quantity?: number
+          ticket_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_quantity?: number
+          sold_quantity?: number
+          ticket_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_ticket_sold: {
+        Args: { p_ticket_type: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

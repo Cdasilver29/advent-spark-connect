@@ -1,19 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
 import MpesaPaymentDialog from "./MpesaPaymentDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SelectedTicket {
   name: string;
   price: number;
 }
 
+interface TicketInventory {
+  ticket_type: string;
+  max_quantity: number;
+  sold_quantity: number;
+}
+
 const Tickets = () => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SelectedTicket | null>(null);
+  const [inventory, setInventory] = useState<TicketInventory[]>([]);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      const { data } = await supabase
+        .from("ticket_inventory")
+        .select("ticket_type, max_quantity, sold_quantity");
+      if (data) {
+        setInventory(data);
+      }
+    };
+    fetchInventory();
+  }, []);
+
+  const getRemaining = (ticketType: string): number | null => {
+    const item = inventory.find((i) => i.ticket_type === ticketType);
+    if (!item) return null;
+    return item.max_quantity - item.sold_quantity;
+  };
+
+  const isSoldOut = (ticketType: string): boolean => {
+    const remaining = getRemaining(ticketType);
+    return remaining !== null && remaining <= 0;
+  };
 
   const handlePurchase = (ticketName: string, price: number) => {
+    if (isSoldOut(ticketName)) return;
     setSelectedTicket({ name: ticketName, price });
     setPaymentDialogOpen(true);
   };
@@ -117,59 +149,80 @@ const Tickets = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
-          {ticketTiers.map((tier, index) => (
-            <Card 
-              key={index}
-              className={`relative border-2 transition-all hover:shadow-strong ${
-                tier.popular 
-                  ? 'border-secondary scale-105 shadow-medium' 
-                  : 'border-border hover:border-primary/50'
-              }`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gradient-gold text-foreground px-6 py-1.5 rounded-full text-sm font-bold shadow-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-8 pt-8">
-                <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
-                <div className="mb-2">
-                  {tier.originalPrice && (
-                    <span className="text-lg text-muted-foreground line-through mr-2">
-                      {tier.originalPrice}
+          {ticketTiers.map((tier, index) => {
+            const remaining = getRemaining(tier.name);
+            const soldOut = isSoldOut(tier.name);
+
+            return (
+              <Card 
+                key={index}
+                className={`relative border-2 transition-all hover:shadow-strong ${
+                  tier.popular 
+                    ? 'border-secondary scale-105 shadow-medium' 
+                    : 'border-border hover:border-primary/50'
+                } ${soldOut ? 'opacity-60' : ''}`}
+              >
+                {tier.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="bg-gradient-gold text-foreground px-6 py-1.5 rounded-full text-sm font-bold shadow-medium">
+                      Most Popular
                     </span>
-                  )}
-                  <div className="text-4xl font-bold text-primary">{tier.price}</div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
-                  {tier.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                  </div>
+                )}
+
+                {soldOut && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                    <span className="bg-destructive text-destructive-foreground px-6 py-1.5 rounded-full text-sm font-bold shadow-medium">
+                      Sold Out
+                    </span>
+                  </div>
+                )}
                 
-                <Button 
-                  onClick={() => handlePurchase(tier.name, parsePrice(tier.price))}
-                  className={`w-full ${
-                    tier.popular 
-                      ? 'bg-gradient-gold hover:opacity-90 text-foreground' 
-                      : 'bg-primary hover:bg-primary-dark'
-                  } font-semibold py-6`}
-                >
-                  Purchase Ticket
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                <CardHeader className="text-center pb-8 pt-8">
+                  <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
+                  {remaining !== null && !soldOut && (
+                    <p className="text-xs text-primary font-semibold mb-2">
+                      Only {remaining} left!
+                    </p>
+                  )}
+                  <div className="mb-2">
+                    {tier.originalPrice && (
+                      <span className="text-lg text-muted-foreground line-through mr-2">
+                        {tier.originalPrice}
+                      </span>
+                    )}
+                    <div className="text-4xl font-bold text-primary">{tier.price}</div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  <ul className="space-y-3">
+                    {tier.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    onClick={() => handlePurchase(tier.name, parsePrice(tier.price))}
+                    disabled={soldOut}
+                    className={`w-full ${
+                      soldOut
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                        : tier.popular 
+                          ? 'bg-gradient-gold hover:opacity-90 text-foreground' 
+                          : 'bg-primary hover:bg-primary-dark'
+                    } font-semibold py-6`}
+                  >
+                    {soldOut ? 'Sold Out' : 'Purchase Ticket'}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="mt-12 text-center">
