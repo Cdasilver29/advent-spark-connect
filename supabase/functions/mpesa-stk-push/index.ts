@@ -143,7 +143,7 @@ serve(async (req) => {
       PartyB: shortcode,
       PhoneNumber: formattedPhone,
       CallBackURL: callbackUrl,
-      AccountReference: "AdventSpark",
+      AccountReference: "AdventistSpark",
       TransactionDesc: `Ticket: ${ticketType}`,
     };
 
