@@ -175,7 +175,7 @@ This project is maintained by the Seventh-day Adventist Church community. For in
 
 ## 📄 License
 
-© 2025 Adventist Singles Spark. All rights reserved.
+© 2026 Adventist Singles Spark. All rights reserved.
 
 An initiative of the Seventh-day Adventist Church community.
 
