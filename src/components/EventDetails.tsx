@@ -1,30 +1,62 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Info } from "lucide-react";
 
+interface EventDetailsData {
+  event_date: string;
+  event_time: string;
+  venue: string;
+  dress_code: string;
+}
+
 const EventDetails = () => {
+  const [eventData, setEventData] = useState<EventDetailsData>({
+    event_date: "Coming Soon",
+    event_time: "1:00 PM - 7:00 PM",
+    venue: "To Be Announced",
+    dress_code: "Smart Casual",
+  });
+
+  useEffect(() => {
+    fetchEventDetails();
+  }, []);
+
+  const fetchEventDetails = async () => {
+    const { data } = await supabase
+      .from("event_details")
+      .select("event_date, event_time, venue, dress_code")
+      .limit(1)
+      .single();
+
+    if (data) {
+      setEventData(data);
+    }
+  };
+
   const details = [
     {
       icon: Calendar,
       label: "Date",
-      value: "Coming Soon",
+      value: eventData.event_date,
       description: "Mark your calendars!",
     },
     {
       icon: Clock,
       label: "Time",
-      value: "1:00 PM - 7:00 PM",
+      value: eventData.event_time,
       description: "Afternoon of connection",
     },
     {
       icon: MapPin,
       label: "Venue",
-      value: "To Be Announced",
+      value: eventData.venue,
       description: "Premium location",
     },
     {
       icon: Info,
       label: "Dress Code",
-      value: "Smart Casual",
+      value: eventData.dress_code,
       description: "Look your best!",
     },
   ];
