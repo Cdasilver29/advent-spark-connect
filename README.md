@@ -160,9 +160,16 @@ Connect your own domain via Project → Settings → Domains
 - Edit directly in the browser
 - Commit and push when done
 
+## ✅ Implemented Features
+
+- [x] M-PESA STK Push payment integration
+- [x] Early bird ticket inventory tracking (20 tickets per age group)
+- [x] Real-time ticket availability display
+- [x] Sold out status handling
+- [x] Payment status tracking via Supabase
+
 ## 🎯 Upcoming Features
 
-- [ ] M-PESA payment integration
 - [ ] Bank transfer payment option
 - [ ] Card payment processing
 - [ ] Automated ticket delivery via email
