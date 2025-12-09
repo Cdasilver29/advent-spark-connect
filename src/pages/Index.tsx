@@ -3,12 +3,12 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Activities from "@/components/Activities";
 import EventDetails from "@/components/EventDetails";
+import EventFlyers from "@/components/EventFlyers";
 import Tickets from "@/components/Tickets";
 import Footer from "@/components/Footer";
 
 const Index = () => {
   useEffect(() => {
-    // Update page title and meta
     document.title = "Adventist Singles Spark - Equally Yoked";
     
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -26,6 +26,7 @@ const Index = () => {
       <About />
       <Activities />
       <EventDetails />
+      <EventFlyers />
       <Tickets />
       <Footer />
     </div>
