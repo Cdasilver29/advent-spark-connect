@@ -1,4 +1,5 @@
-import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Heart, Mail, Phone, MapPin, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -56,6 +57,12 @@ const Footer = () => {
                 <a href="https://www.adventist.org" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
                   Adventist.org
                 </a>
+              </li>
+              <li>
+                <Link to="/auth" className="hover:text-secondary transition-colors flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Manager Dashboard
+                </Link>
               </li>
             </ul>
           </div>

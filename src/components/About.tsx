@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, Church, Gift, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import faithCenteredImg from "@/assets/faith-centered.jpg";
+import intentionalConnectionsImg from "@/assets/intentional-connections.jpg";
+import adventistCommunityImg from "@/assets/adventist-community.jpg";
+import weddingSponsorshipImg from "@/assets/wedding-sponsorship.jpg";
 
 const About = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -9,6 +13,7 @@ const About = () => {
   const features = [
     {
       icon: Heart,
+      image: faithCenteredImg,
       title: "Faith-Centered",
       description: "Connect with fellow Adventists who share your values and beliefs",
       expandedContent: {
@@ -23,6 +28,7 @@ const About = () => {
     },
     {
       icon: Users,
+      image: intentionalConnectionsImg,
       title: "Intentional Connections",
       description: "Meet singles who are serious about finding their life partner",
       expandedContent: {
@@ -37,6 +43,7 @@ const About = () => {
     },
     {
       icon: Church,
+      image: adventistCommunityImg,
       title: "Adventist Community",
       description: "Build relationships within our faith community",
       expandedContent: {
@@ -52,6 +59,7 @@ const About = () => {
     },
     {
       icon: Gift,
+      image: weddingSponsorshipImg,
       title: "Wedding Sponsorship",
       description: "Partial wedding sponsoring for couples who find their match",
       expandedContent: {
@@ -89,17 +97,27 @@ const About = () => {
             <Card 
               key={index} 
               className={cn(
-                "border-none shadow-soft hover:shadow-medium transition-all cursor-pointer",
+                "border-none shadow-soft hover:shadow-medium transition-all cursor-pointer overflow-hidden",
                 expandedIndex === index && "ring-2 ring-primary shadow-medium"
               )}
               onClick={() => toggleExpanded(index)}
             >
-              <CardContent className="pt-6 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <feature.icon className="w-8 h-8 text-primary" />
+              <div className="relative h-40 overflow-hidden">
+                <img 
+                  src={feature.image} 
+                  alt={feature.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/90 backdrop-blur-sm">
+                    <feature.icon className="w-5 h-5 text-white" />
+                  </div>
                 </div>
+              </div>
+              <CardContent className="pt-4 text-center">
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground mb-3">{feature.description}</p>
+                <p className="text-muted-foreground text-sm mb-3">{feature.description}</p>
                 <div className="flex items-center justify-center gap-2 text-primary text-sm font-medium">
                   <span>Learn more</span>
                   {expandedIndex === index ? (

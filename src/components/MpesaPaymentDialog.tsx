@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Phone, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, Phone, CheckCircle2, XCircle, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -29,6 +29,7 @@ const MpesaPaymentDialog = ({
   amount,
 }: MpesaPaymentDialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -37,6 +38,7 @@ const MpesaPaymentDialog = ({
   useEffect(() => {
     if (open) {
       setPhoneNumber("");
+      setEmail("");
       setStatus("idle");
       setCheckoutRequestId(null);
       setErrorMessage(null);
@@ -59,7 +61,7 @@ const MpesaPaymentDialog = ({
         if (data.status === "completed") {
           setStatus("completed");
           toast.success("Payment successful!", {
-            description: `Receipt: ${data.receiptNumber}`,
+            description: `Receipt: ${data.receiptNumber}. Your ticket has been sent to ${email}`,
           });
           clearInterval(pollInterval);
         } else if (data.status === "failed") {
@@ -88,13 +90,20 @@ const MpesaPaymentDialog = ({
       clearInterval(pollInterval);
       clearTimeout(timeout);
     };
-  }, [status, checkoutRequestId]);
+  }, [status, checkoutRequestId, email]);
 
   const handleInitiatePayment = async () => {
     // Validate phone number
     const cleanPhone = phoneNumber.replace(/\s+/g, "");
     if (!cleanPhone || cleanPhone.length < 9) {
       toast.error("Please enter a valid phone number");
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
@@ -107,6 +116,7 @@ const MpesaPaymentDialog = ({
           phoneNumber: cleanPhone,
           amount,
           ticketType,
+          email,
         },
       });
 
@@ -152,22 +162,42 @@ const MpesaPaymentDialog = ({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">M-Pesa Phone Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="0712 345 678"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="pl-10"
-                />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Your ticket with QR code will be sent to this email
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Enter the phone number registered with M-Pesa
-              </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">M-Pesa Phone Number</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="0712 345 678"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter the phone number registered with M-Pesa
+                </p>
+              </div>
             </div>
 
             <Button onClick={handleInitiatePayment} className="w-full" size="lg">
@@ -219,7 +249,7 @@ const MpesaPaymentDialog = ({
             <p className="text-sm text-muted-foreground text-center">
               Your ticket for {ticketType} has been confirmed.
               <br />
-              You will receive a confirmation SMS shortly.
+              A ticket with QR code has been sent to {email}
             </p>
             <Button onClick={handleClose} className="mt-4">
               Done
