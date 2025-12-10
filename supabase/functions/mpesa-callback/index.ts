@@ -54,6 +54,8 @@ serve(async (req) => {
     // Extract metadata if payment was successful
     let mpesaReceiptNumber = null;
     let transactionDate = null;
+    let phoneNumber = null;
+    let amount = null;
 
     if (ResultCode === 0 && CallbackMetadata) {
       for (const item of CallbackMetadata.Item) {
@@ -63,6 +65,12 @@ serve(async (req) => {
         if (item.Name === "TransactionDate") {
           transactionDate = String(item.Value);
         }
+        if (item.Name === "PhoneNumber") {
+          phoneNumber = String(item.Value);
+        }
+        if (item.Name === "Amount") {
+          amount = Number(item.Value);
+        }
       }
       console.log("Payment successful - Receipt:", mpesaReceiptNumber);
     } else {
@@ -70,7 +78,7 @@ serve(async (req) => {
     }
 
     // Update payment record in database
-    const { error: updateError } = await supabase
+    const { data: paymentData, error: updateError } = await supabase
       .from("payments")
       .update({
         status: ResultCode === 0 ? "completed" : "failed",
@@ -79,12 +87,40 @@ serve(async (req) => {
         mpesa_receipt_number: mpesaReceiptNumber,
         transaction_date: transactionDate,
       })
-      .eq("checkout_request_id", CheckoutRequestID);
+      .eq("checkout_request_id", CheckoutRequestID)
+      .select()
+      .single();
 
     if (updateError) {
       console.error("Database update error:", updateError);
     } else {
       console.log("Payment record updated successfully");
+
+      // If payment was successful, send ticket email
+      if (ResultCode === 0 && paymentData?.email) {
+        console.log("Sending ticket email to:", paymentData.email);
+        
+        try {
+          const emailResponse = await supabase.functions.invoke("send-ticket-email", {
+            body: {
+              email: paymentData.email,
+              ticketType: paymentData.ticket_type,
+              amount: paymentData.amount,
+              mpesaReceipt: mpesaReceiptNumber,
+              phoneNumber: paymentData.phone_number,
+              transactionDate: transactionDate,
+            },
+          });
+
+          if (emailResponse.error) {
+            console.error("Failed to send ticket email:", emailResponse.error);
+          } else {
+            console.log("Ticket email sent successfully");
+          }
+        } catch (emailError) {
+          console.error("Email sending error:", emailError);
+        }
+      }
     }
 
     // Return success response to M-Pesa
