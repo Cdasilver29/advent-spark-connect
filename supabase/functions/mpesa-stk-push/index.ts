@@ -10,6 +10,7 @@ interface STKPushRequest {
   phoneNumber: string;
   amount: number;
   ticketType: string;
+  email?: string;
 }
 
 interface MPesaAuthResponse {
@@ -96,7 +97,7 @@ serve(async (req) => {
   }
 
   try {
-    const { phoneNumber, amount, ticketType }: STKPushRequest = await req.json();
+    const { phoneNumber, amount, ticketType, email }: STKPushRequest = await req.json();
 
     // Validate input
     if (!phoneNumber || !amount || !ticketType) {
@@ -186,6 +187,7 @@ serve(async (req) => {
       merchant_request_id: stkResult.MerchantRequestID,
       checkout_request_id: stkResult.CheckoutRequestID,
       status: "pending",
+      email: email || null,
     });
 
     if (dbError) {

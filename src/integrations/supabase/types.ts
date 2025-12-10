@@ -85,6 +85,7 @@ export type Database = {
           amount: number
           checkout_request_id: string | null
           created_at: string
+          email: string | null
           id: string
           merchant_request_id: string | null
           mpesa_receipt_number: string | null
@@ -100,6 +101,7 @@ export type Database = {
           amount: number
           checkout_request_id?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
@@ -115,6 +117,7 @@ export type Database = {
           amount?: number
           checkout_request_id?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
