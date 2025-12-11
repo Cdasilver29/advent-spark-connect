@@ -26,6 +26,10 @@ interface MPesaSTKResponse {
   CustomerMessage: string;
 }
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MINUTES = 5;
+const MAX_REQUESTS_PER_PHONE = 3;
+
 // Allowed ticket types
 const VALID_TICKET_TYPES = [
   "Early Bird (Ages 21-28)",
@@ -134,6 +138,33 @@ function validateEmail(email: string | undefined): { valid: boolean; error?: str
   return { valid: true };
 }
 
+// Rate limiting check using database
+async function checkRateLimit(supabase: any, phoneNumber: string): Promise<{ allowed: boolean; error?: string }> {
+  const windowStart = new Date();
+  windowStart.setMinutes(windowStart.getMinutes() - RATE_LIMIT_WINDOW_MINUTES);
+  
+  const { count, error } = await supabase
+    .from("payments")
+    .select("*", { count: "exact", head: true })
+    .eq("phone_number", phoneNumber)
+    .gte("created_at", windowStart.toISOString());
+  
+  if (error) {
+    console.error("Rate limit check error:", error);
+    // Allow request if rate limit check fails (fail open for availability)
+    return { allowed: true };
+  }
+  
+  if (count !== null && count >= MAX_REQUESTS_PER_PHONE) {
+    return { 
+      allowed: false, 
+      error: `Too many payment requests. Please wait ${RATE_LIMIT_WINDOW_MINUTES} minutes before trying again.` 
+    };
+  }
+  
+  return { allowed: true };
+}
+
 // Get M-Pesa OAuth token
 async function getMpesaToken(): Promise<string> {
   const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY");
@@ -239,6 +270,21 @@ serve(async (req) => {
 
     console.log("Validated STK Push request:", { formattedPhone, validatedAmount, ticketType, email });
 
+    // Initialize Supabase client for rate limiting and database operations
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check rate limit before processing
+    const rateLimitCheck = await checkRateLimit(supabase, formattedPhone);
+    if (!rateLimitCheck.allowed) {
+      console.warn("Rate limit exceeded for phone:", formattedPhone);
+      return new Response(
+        JSON.stringify({ error: rateLimitCheck.error }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Get environment variables
     const shortcode = Deno.env.get("MPESA_SHORTCODE") || "174379";
     const passkey = Deno.env.get("MPESA_PASSKEY");
@@ -304,10 +350,6 @@ serve(async (req) => {
     }
 
     // Save payment record to database
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     const { error: dbError } = await supabase.from("payments").insert({
       phone_number: formattedPhone,
       amount: validatedAmount,

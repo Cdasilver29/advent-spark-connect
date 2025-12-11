@@ -2,10 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const INTERNAL_API_SECRET = Deno.env.get("INTERNAL_API_SECRET");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-internal-secret",
 };
 
 interface TicketEmailRequest {
@@ -33,7 +34,35 @@ serve(async (req) => {
   }
 
   try {
+    // Validate internal API secret to prevent abuse
+    const providedSecret = req.headers.get("x-internal-secret");
+    
+    if (!INTERNAL_API_SECRET) {
+      console.error("INTERNAL_API_SECRET not configured");
+      return new Response(
+        JSON.stringify({ success: false, error: "Server configuration error" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!providedSecret || providedSecret !== INTERNAL_API_SECRET) {
+      console.warn("Unauthorized email request attempt - invalid or missing secret");
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { email, ticketType, amount, mpesaReceipt, phoneNumber, transactionDate }: TicketEmailRequest = await req.json();
+
+    // Validate required fields
+    if (!email || !ticketType || !amount || !mpesaReceipt) {
+      console.error("Missing required fields for email");
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing required fields" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     console.log("Sending ticket email to:", email);
 
