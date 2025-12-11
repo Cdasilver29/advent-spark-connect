@@ -26,6 +26,114 @@ interface MPesaSTKResponse {
   CustomerMessage: string;
 }
 
+// Allowed ticket types
+const VALID_TICKET_TYPES = [
+  "Early Bird (Ages 21-28)",
+  "Early Bird (Ages 28-40+)",
+  "Regular (Ages 21-28)",
+  "Regular (Ages 28-40+)",
+  "VIP (Ages 21-28)",
+  "VIP (Ages 28-40+)"
+];
+
+// Validation functions
+function validatePhoneNumber(phone: string): { valid: boolean; error?: string; formatted?: string } {
+  if (!phone || typeof phone !== "string") {
+    return { valid: false, error: "Phone number is required" };
+  }
+  
+  // Remove all non-numeric characters
+  let cleaned = phone.replace(/[^0-9]/g, "");
+  
+  // Convert to 254 format
+  if (cleaned.startsWith("0")) {
+    cleaned = "254" + cleaned.substring(1);
+  } else if (cleaned.startsWith("+254")) {
+    cleaned = cleaned.substring(1);
+  } else if (!cleaned.startsWith("254")) {
+    cleaned = "254" + cleaned;
+  }
+  
+  // Validate length (should be 12 digits: 254 + 9 digits)
+  if (cleaned.length !== 12) {
+    return { valid: false, error: "Phone number must be a valid Kenyan number (e.g., 0712345678 or 254712345678)" };
+  }
+  
+  // Validate it starts with valid Kenyan prefixes after 254
+  const validPrefixes = ["7", "1"]; // Safaricom, Airtel, Telkom
+  const afterCode = cleaned.substring(3, 4);
+  if (!validPrefixes.includes(afterCode)) {
+    return { valid: false, error: "Phone number must be a valid Kenyan mobile number" };
+  }
+  
+  return { valid: true, formatted: cleaned };
+}
+
+function validateAmount(amount: unknown): { valid: boolean; error?: string; value?: number } {
+  if (amount === undefined || amount === null) {
+    return { valid: false, error: "Amount is required" };
+  }
+  
+  const numAmount = Number(amount);
+  
+  if (isNaN(numAmount)) {
+    return { valid: false, error: "Amount must be a valid number" };
+  }
+  
+  if (numAmount <= 0) {
+    return { valid: false, error: "Amount must be greater than zero" };
+  }
+  
+  if (numAmount < 100) {
+    return { valid: false, error: "Minimum amount is 100 KES" };
+  }
+  
+  if (numAmount > 100000) {
+    return { valid: false, error: "Maximum amount is 100,000 KES" };
+  }
+  
+  // M-Pesa only accepts whole numbers
+  if (!Number.isInteger(numAmount)) {
+    return { valid: true, value: Math.round(numAmount) };
+  }
+  
+  return { valid: true, value: numAmount };
+}
+
+function validateTicketType(ticketType: string): { valid: boolean; error?: string } {
+  if (!ticketType || typeof ticketType !== "string") {
+    return { valid: false, error: "Ticket type is required" };
+  }
+  
+  if (!VALID_TICKET_TYPES.includes(ticketType)) {
+    return { valid: false, error: `Invalid ticket type. Must be one of: ${VALID_TICKET_TYPES.join(", ")}` };
+  }
+  
+  return { valid: true };
+}
+
+function validateEmail(email: string | undefined): { valid: boolean; error?: string } {
+  if (!email) {
+    return { valid: true }; // Email is optional
+  }
+  
+  if (typeof email !== "string") {
+    return { valid: false, error: "Email must be a string" };
+  }
+  
+  // Basic email regex validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { valid: false, error: "Invalid email format" };
+  }
+  
+  if (email.length > 255) {
+    return { valid: false, error: "Email must be less than 255 characters" };
+  }
+  
+  return { valid: true };
+}
+
 // Get M-Pesa OAuth token
 async function getMpesaToken(): Promise<string> {
   const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY");
@@ -75,21 +183,6 @@ function generatePassword(shortcode: string, passkey: string, timestamp: string)
   return btoa(`${shortcode}${passkey}${timestamp}`);
 }
 
-// Format phone number to 254 format
-function formatPhoneNumber(phone: string): string {
-  let formatted = phone.replace(/\s+/g, "").replace(/[^0-9]/g, "");
-  
-  if (formatted.startsWith("0")) {
-    formatted = "254" + formatted.substring(1);
-  } else if (formatted.startsWith("+254")) {
-    formatted = formatted.substring(1);
-  } else if (!formatted.startsWith("254")) {
-    formatted = "254" + formatted;
-  }
-  
-  return formatted;
-}
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -99,16 +192,52 @@ serve(async (req) => {
   try {
     const { phoneNumber, amount, ticketType, email }: STKPushRequest = await req.json();
 
-    // Validate input
-    if (!phoneNumber || !amount || !ticketType) {
-      console.error("Missing required fields:", { phoneNumber, amount, ticketType });
+    console.log("Processing STK Push request:", { phoneNumber, amount, ticketType, email });
+
+    // Validate phone number
+    const phoneValidation = validatePhoneNumber(phoneNumber);
+    if (!phoneValidation.valid) {
+      console.error("Phone validation failed:", phoneValidation.error);
       return new Response(
-        JSON.stringify({ error: "Phone number, amount, and ticket type are required" }),
+        JSON.stringify({ error: phoneValidation.error }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Processing STK Push request:", { phoneNumber, amount, ticketType });
+    // Validate amount
+    const amountValidation = validateAmount(amount);
+    if (!amountValidation.valid) {
+      console.error("Amount validation failed:", amountValidation.error);
+      return new Response(
+        JSON.stringify({ error: amountValidation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate ticket type
+    const ticketValidation = validateTicketType(ticketType);
+    if (!ticketValidation.valid) {
+      console.error("Ticket type validation failed:", ticketValidation.error);
+      return new Response(
+        JSON.stringify({ error: ticketValidation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate email (optional)
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      console.error("Email validation failed:", emailValidation.error);
+      return new Response(
+        JSON.stringify({ error: emailValidation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const formattedPhone = phoneValidation.formatted!;
+    const validatedAmount = amountValidation.value!;
+
+    console.log("Validated STK Push request:", { formattedPhone, validatedAmount, ticketType, email });
 
     // Get environment variables
     const shortcode = Deno.env.get("MPESA_SHORTCODE") || "174379";
@@ -129,7 +258,6 @@ serve(async (req) => {
     // Generate timestamp and password
     const timestamp = generateTimestamp();
     const password = generatePassword(shortcode, passkey, timestamp);
-    const formattedPhone = formatPhoneNumber(phoneNumber);
 
     console.log("Initiating STK Push to:", formattedPhone);
 
@@ -139,7 +267,7 @@ serve(async (req) => {
       Password: password,
       Timestamp: timestamp,
       TransactionType: "CustomerPayBillOnline",
-      Amount: Math.round(amount),
+      Amount: validatedAmount,
       PartyA: formattedPhone,
       PartyB: shortcode,
       PhoneNumber: formattedPhone,
@@ -182,7 +310,7 @@ serve(async (req) => {
 
     const { error: dbError } = await supabase.from("payments").insert({
       phone_number: formattedPhone,
-      amount: amount,
+      amount: validatedAmount,
       ticket_type: ticketType,
       merchant_request_id: stkResult.MerchantRequestID,
       checkout_request_id: stkResult.CheckoutRequestID,
