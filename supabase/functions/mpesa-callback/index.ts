@@ -49,6 +49,7 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const internalApiSecret = Deno.env.get("INTERNAL_API_SECRET");
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Extract metadata if payment was successful
@@ -100,25 +101,40 @@ serve(async (req) => {
       if (ResultCode === 0 && paymentData?.email) {
         console.log("Sending ticket email to:", paymentData.email);
         
-        try {
-          const emailResponse = await supabase.functions.invoke("send-ticket-email", {
-            body: {
-              email: paymentData.email,
-              ticketType: paymentData.ticket_type,
-              amount: paymentData.amount,
-              mpesaReceipt: mpesaReceiptNumber,
-              phoneNumber: paymentData.phone_number,
-              transactionDate: transactionDate,
-            },
-          });
+        if (!internalApiSecret) {
+          console.error("INTERNAL_API_SECRET not configured - cannot send email securely");
+        } else {
+          try {
+            // Call the email function with internal secret for authentication
+            const emailFunctionUrl = `${supabaseUrl}/functions/v1/send-ticket-email`;
+            
+            const emailResponse = await fetch(emailFunctionUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${supabaseKey}`,
+                "x-internal-secret": internalApiSecret,
+              },
+              body: JSON.stringify({
+                email: paymentData.email,
+                ticketType: paymentData.ticket_type,
+                amount: paymentData.amount,
+                mpesaReceipt: mpesaReceiptNumber,
+                phoneNumber: paymentData.phone_number,
+                transactionDate: transactionDate,
+              }),
+            });
 
-          if (emailResponse.error) {
-            console.error("Failed to send ticket email:", emailResponse.error);
-          } else {
-            console.log("Ticket email sent successfully");
+            const emailResult = await emailResponse.json();
+            
+            if (!emailResponse.ok || !emailResult.success) {
+              console.error("Failed to send ticket email:", emailResult);
+            } else {
+              console.log("Ticket email sent successfully");
+            }
+          } catch (emailError) {
+            console.error("Email sending error:", emailError);
           }
-        } catch (emailError) {
-          console.error("Email sending error:", emailError);
         }
       }
     }
