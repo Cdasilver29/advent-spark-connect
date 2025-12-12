@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { z } from "zod";
+
+// Password validation schema
+const passwordSchema = z.string()
+  .min(8, "At least 8 characters")
+  .regex(/[A-Z]/, "At least one uppercase letter")
+  .regex(/[a-z]/, "At least one lowercase letter")
+  .regex(/[0-9]/, "At least one number")
+  .regex(/[^A-Za-z0-9]/, "At least one special character");
+
+const emailSchema = z.string().email("Invalid email format");
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +29,27 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Password strength validation
+  const passwordChecks = useMemo(() => {
+    if (isLogin) return null;
+    return {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecial: /[^A-Za-z0-9]/.test(password),
+    };
+  }, [password, isLogin]);
+
+  const isPasswordStrong = useMemo(() => {
+    if (!passwordChecks) return true;
+    return Object.values(passwordChecks).every(Boolean);
+  }, [passwordChecks]);
+
+  const isEmailValid = useMemo(() => {
+    return emailSchema.safeParse(email).success;
+  }, [email]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -39,6 +71,27 @@ const Auth = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate email
+    if (!isEmailValid) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password strength for signup
+    if (!isLogin && !isPasswordStrong) {
+      toast({
+        title: "Weak Password",
+        description: "Please ensure your password meets all requirements.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -184,9 +237,33 @@ const Auth = () => {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
+                {!isLogin && passwordChecks && password.length > 0 && (
+                  <div className="mt-2 space-y-1 text-xs">
+                    <div className="flex items-center gap-1">
+                      {passwordChecks.minLength ? <Check className="w-3 h-3 text-green-500" /> : <X className="w-3 h-3 text-red-500" />}
+                      <span className={passwordChecks.minLength ? "text-green-600" : "text-muted-foreground"}>At least 8 characters</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {passwordChecks.hasUppercase ? <Check className="w-3 h-3 text-green-500" /> : <X className="w-3 h-3 text-red-500" />}
+                      <span className={passwordChecks.hasUppercase ? "text-green-600" : "text-muted-foreground"}>One uppercase letter</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {passwordChecks.hasLowercase ? <Check className="w-3 h-3 text-green-500" /> : <X className="w-3 h-3 text-red-500" />}
+                      <span className={passwordChecks.hasLowercase ? "text-green-600" : "text-muted-foreground"}>One lowercase letter</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {passwordChecks.hasNumber ? <Check className="w-3 h-3 text-green-500" /> : <X className="w-3 h-3 text-red-500" />}
+                      <span className={passwordChecks.hasNumber ? "text-green-600" : "text-muted-foreground"}>One number</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {passwordChecks.hasSpecial ? <Check className="w-3 h-3 text-green-500" /> : <X className="w-3 h-3 text-red-500" />}
+                      <span className={passwordChecks.hasSpecial ? "text-green-600" : "text-muted-foreground"}>One special character (!@#$%^&*)</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading || (!isLogin && !isPasswordStrong)}>
                 {isLoading ? "Please wait..." : isLogin ? "Login" : "Create Account"}
               </Button>
             </form>
