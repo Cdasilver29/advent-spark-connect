@@ -6,6 +6,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Safaricom M-Pesa callback IP ranges (Kenya)
+// These should be verified with Safaricom's official documentation
+const ALLOWED_IP_RANGES = [
+  "196.201.214.", // Safaricom IP range
+  "196.201.212.", // Safaricom IP range
+  "196.201.213.", // Safaricom IP range
+  "41.215.112.",  // Safaricom IP range
+  "41.215.113.",  // Safaricom IP range
+  "41.215.114.",  // Safaricom IP range
+];
+
+// In development/testing, allow localhost and internal IPs
+const DEV_ALLOWED_IPS = ["127.0.0.1", "::1", "localhost"];
+
+function isAllowedIP(ip: string | null): boolean {
+  if (!ip) return false;
+  
+  // Check for development IPs (only in non-production)
+  const isProduction = Deno.env.get("ENVIRONMENT") === "production";
+  if (!isProduction && DEV_ALLOWED_IPS.some(devIP => ip.includes(devIP))) {
+    console.log("Development IP allowed:", ip);
+    return true;
+  }
+  
+  // Check if IP starts with any allowed Safaricom range
+  const isAllowed = ALLOWED_IP_RANGES.some(range => ip.startsWith(range));
+  console.log(`IP validation: ${ip} - ${isAllowed ? "ALLOWED" : "BLOCKED"}`);
+  return isAllowed;
+}
+
 interface MPesaCallbackItem {
   Name: string;
   Value: string | number;
@@ -32,6 +62,23 @@ serve(async (req) => {
   }
 
   try {
+    // Get client IP from various headers (Supabase edge functions)
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
+      || req.headers.get("x-real-ip") 
+      || req.headers.get("cf-connecting-ip")
+      || null;
+    
+    console.log("Callback received from IP:", clientIP);
+    
+    // Validate source IP
+    if (!isAllowedIP(clientIP)) {
+      console.error("SECURITY: Callback from unauthorized IP:", clientIP);
+      return new Response(
+        JSON.stringify({ ResultCode: 1, ResultDesc: "Unauthorized" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const callback: MPesaCallback = await req.json();
     console.log("M-Pesa callback received:", JSON.stringify(callback, null, 2));
 
@@ -51,6 +98,31 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const internalApiSecret = Deno.env.get("INTERNAL_API_SECRET");
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // SECURITY: Verify the checkout_request_id exists in our database
+    // This prevents processing callbacks for non-existent transactions
+    const { data: existingPayment } = await supabase
+      .from("payments")
+      .select("id, status")
+      .eq("checkout_request_id", CheckoutRequestID)
+      .single();
+
+    if (!existingPayment) {
+      console.error("SECURITY: Callback for unknown checkout_request_id:", CheckoutRequestID);
+      return new Response(
+        JSON.stringify({ ResultCode: 1, ResultDesc: "Unknown transaction" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Prevent reprocessing completed/failed payments
+    if (existingPayment.status !== "pending") {
+      console.log("Payment already processed, status:", existingPayment.status);
+      return new Response(
+        JSON.stringify({ ResultCode: 0, ResultDesc: "Already processed" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Extract metadata if payment was successful
     let mpesaReceiptNumber = null;

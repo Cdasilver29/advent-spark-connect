@@ -53,12 +53,10 @@ serve(async (req) => {
 
     console.log("Payment status:", payment.status);
 
+    // Only return the status field - minimize data exposure
     return new Response(
       JSON.stringify({
         status: payment.status,
-        ticketType: payment.ticket_type,
-        amount: payment.amount,
-        receiptNumber: payment.mpesa_receipt_number,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

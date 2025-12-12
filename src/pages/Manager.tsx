@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface EventDetails {
@@ -43,6 +43,17 @@ interface TicketInventory {
   max_quantity: number;
 }
 
+interface Payment {
+  id: string;
+  phone_number: string;
+  email: string | null;
+  amount: number;
+  ticket_type: string;
+  status: string;
+  mpesa_receipt_number: string | null;
+  created_at: string;
+}
+
 const Manager = () => {
   const { user, isLoading, isManager, signOut } = useAuth();
   const navigate = useNavigate();
@@ -52,13 +63,64 @@ const Manager = () => {
   const [flyers, setFlyers] = useState<EventFlyer[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [ticketInventory, setTicketInventory] = useState<TicketInventory[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
   
   // Form states
   const [newFlyer, setNewFlyer] = useState({ title: "", description: "", event_date: "" });
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [newLink, setNewLink] = useState({ platform: "", url: "" });
+
+  // Audit logging function
+  const logAuditEvent = async (action: string, resourceType: string, metadata?: Record<string, unknown>) => {
+    if (!user) return;
+    
+    try {
+      // Use type assertion since audit_logs table was just created
+      await (supabase.from("audit_logs") as any).insert({
+        user_id: user.id,
+        action,
+        resource_type: resourceType,
+        metadata,
+      });
+    } catch (error) {
+      console.error("Failed to log audit event:", error);
+    }
+  };
+
+  // Fetch payments with audit logging
+  const fetchPayments = async () => {
+    if (!user || !isManager) return;
+    
+    setIsLoadingPayments(true);
+    
+    // Log the access attempt
+    await logAuditEvent("view_payments", "payments", { 
+      timestamp: new Date().toISOString(),
+      action_type: "list_all" 
+    });
+    
+    const { data: paymentsData, error } = await supabase
+      .from("payments")
+      .select("id, phone_number, email, amount, ticket_type, status, mpesa_receipt_number, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    
+    if (error) {
+      console.error("Error fetching payments:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch payments data.",
+        variant: "destructive",
+      });
+    } else if (paymentsData) {
+      setPayments(paymentsData);
+    }
+    
+    setIsLoadingPayments(false);
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -327,11 +389,12 @@ const Manager = () => {
         )}
 
         <Tabs defaultValue="event" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-4">
+          <TabsList className="grid w-full max-w-lg grid-cols-5">
             <TabsTrigger value="event">Event</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="tickets">Tickets</TabsTrigger>
+            <TabsTrigger value="payments" onClick={() => fetchPayments()}>Payments</TabsTrigger>
           </TabsList>
 
           {/* Event Details Tab */}
@@ -626,6 +689,96 @@ const Manager = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" /> Payment Records
+                </CardTitle>
+                <CardDescription>
+                  View payment history. Access to this data is logged for security.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!isManager ? (
+                  <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                    <AlertTitle>Access Denied</AlertTitle>
+                    <AlertDescription>
+                      You need manager permissions to view payment data.
+                    </AlertDescription>
+                  </Alert>
+                ) : isLoadingPayments ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading payments...</div>
+                ) : payments.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No payment records found.</p>
+                    <Button variant="outline" className="mt-4" onClick={fetchPayments}>
+                      Refresh
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 px-2">Date</th>
+                            <th className="text-left py-2 px-2">Phone</th>
+                            <th className="text-left py-2 px-2">Email</th>
+                            <th className="text-left py-2 px-2">Type</th>
+                            <th className="text-right py-2 px-2">Amount</th>
+                            <th className="text-left py-2 px-2">Status</th>
+                            <th className="text-left py-2 px-2">Receipt</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {payments.map((payment) => (
+                            <tr key={payment.id} className="border-b hover:bg-muted/50">
+                              <td className="py-2 px-2">
+                                {new Date(payment.created_at).toLocaleDateString()}
+                              </td>
+                              <td className="py-2 px-2 font-mono text-xs">
+                                {payment.phone_number.slice(0, 6)}****
+                              </td>
+                              <td className="py-2 px-2 text-xs">
+                                {payment.email ? `${payment.email.split('@')[0].slice(0, 3)}***@${payment.email.split('@')[1]}` : '-'}
+                              </td>
+                              <td className="py-2 px-2 capitalize">
+                                {payment.ticket_type.replace(/_/g, " ")}
+                              </td>
+                              <td className="py-2 px-2 text-right font-medium">
+                                KES {payment.amount.toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  payment.status === 'completed' 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                    : payment.status === 'pending'
+                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                }`}>
+                                  {payment.status}
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 font-mono text-xs">
+                                {payment.mpesa_receipt_number || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <Button variant="outline" onClick={fetchPayments}>
+                      Refresh Data
+                    </Button>
                   </div>
                 )}
               </CardContent>
