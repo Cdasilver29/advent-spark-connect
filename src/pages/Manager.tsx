@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface EventDetails {
@@ -54,6 +54,16 @@ interface Payment {
   created_at: string;
 }
 
+interface AuditLog {
+  id: string;
+  user_id: string;
+  action: string;
+  resource_type: string;
+  resource_id: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
 const Manager = () => {
   const { user, isLoading, isManager, signOut } = useAuth();
   const navigate = useNavigate();
@@ -64,9 +74,11 @@ const Manager = () => {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [ticketInventory, setTicketInventory] = useState<TicketInventory[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingPayments, setIsLoadingPayments] = useState(false);
+  const [isLoadingAuditLogs, setIsLoadingAuditLogs] = useState(false);
   
   // Form states
   const [newFlyer, setNewFlyer] = useState({ title: "", description: "", event_date: "" });
@@ -120,6 +132,31 @@ const Manager = () => {
     }
     
     setIsLoadingPayments(false);
+  };
+
+  // Fetch audit logs
+  const fetchAuditLogs = async () => {
+    if (!user || !isManager) return;
+    
+    setIsLoadingAuditLogs(true);
+    
+    const { data: logsData, error } = await (supabase.from("audit_logs") as any)
+      .select("id, user_id, action, resource_type, resource_id, metadata, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    
+    if (error) {
+      console.error("Error fetching audit logs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch audit logs.",
+        variant: "destructive",
+      });
+    } else if (logsData) {
+      setAuditLogs(logsData);
+    }
+    
+    setIsLoadingAuditLogs(false);
   };
 
   useEffect(() => {
@@ -389,12 +426,13 @@ const Manager = () => {
         )}
 
         <Tabs defaultValue="event" className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-5">
+          <TabsList className="grid w-full max-w-2xl grid-cols-6">
             <TabsTrigger value="event">Event</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="tickets">Tickets</TabsTrigger>
             <TabsTrigger value="payments" onClick={() => fetchPayments()}>Payments</TabsTrigger>
+            <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit Logs</TabsTrigger>
           </TabsList>
 
           {/* Event Details Tab */}
@@ -778,6 +816,88 @@ const Manager = () => {
                     </div>
                     <Button variant="outline" onClick={fetchPayments}>
                       Refresh Data
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Logs Tab */}
+          <TabsContent value="audit">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" /> Audit Logs
+                </CardTitle>
+                <CardDescription>
+                  Security audit trail showing who accessed sensitive data and when.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!isManager ? (
+                  <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                    <AlertTitle>Access Denied</AlertTitle>
+                    <AlertDescription>
+                      You need manager permissions to view audit logs.
+                    </AlertDescription>
+                  </Alert>
+                ) : isLoadingAuditLogs ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading audit logs...</div>
+                ) : auditLogs.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No audit logs found.</p>
+                    <Button variant="outline" className="mt-4" onClick={fetchAuditLogs}>
+                      Refresh
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 px-2">Date & Time</th>
+                            <th className="text-left py-2 px-2">Action</th>
+                            <th className="text-left py-2 px-2">Resource</th>
+                            <th className="text-left py-2 px-2">User ID</th>
+                            <th className="text-left py-2 px-2">Details</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {auditLogs.map((log) => (
+                            <tr key={log.id} className="border-b hover:bg-muted/50">
+                              <td className="py-2 px-2 text-xs">
+                                {new Date(log.created_at).toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  log.action.includes('view') 
+                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                    : log.action.includes('delete')
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                                }`}>
+                                  {log.action}
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 capitalize">
+                                {log.resource_type}
+                              </td>
+                              <td className="py-2 px-2 font-mono text-xs">
+                                {log.user_id.slice(0, 8)}...
+                              </td>
+                              <td className="py-2 px-2 text-xs text-muted-foreground max-w-xs truncate">
+                                {log.metadata ? JSON.stringify(log.metadata).slice(0, 50) : '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <Button variant="outline" onClick={fetchAuditLogs}>
+                      Refresh Logs
                     </Button>
                   </div>
                 )}
