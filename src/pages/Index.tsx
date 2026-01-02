@@ -5,6 +5,8 @@ import Activities from "@/components/Activities";
 import EventDetails from "@/components/EventDetails";
 import EventFlyers from "@/components/EventFlyers";
 import Tickets from "@/components/Tickets";
+import RegistrationForm from "@/components/RegistrationForm";
+import EventProgram from "@/components/EventProgram";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -28,6 +30,8 @@ const Index = () => {
       <EventDetails />
       <EventFlyers />
       <Tickets />
+      <RegistrationForm />
+      <EventProgram />
       <Footer />
     </div>
   );
