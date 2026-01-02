@@ -103,23 +103,35 @@ const EventDetails = () => {
             <ul className="space-y-4 text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">1</span>
-                <span><strong className="text-foreground">Check-in & Welcome:</strong> Arrive, receive your name tag, and enjoy welcome refreshments</span>
+                <span><strong className="text-foreground">Prayer & Welcome (1:00 PM):</strong> Opening devotion, name tag collection, and welcome refreshments in a spirit of fellowship</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">2</span>
-                <span><strong className="text-foreground">Ice Breaker Activities:</strong> Start the evening with fun games to ease any nervousness</span>
+                <span><strong className="text-foreground">Sabbath Selfie Icebreaker (1:30 PM):</strong> Meet 3 new people and share your favorite Sabbath memories through guided conversations</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">3</span>
-                <span><strong className="text-foreground">Speed Dating Rounds:</strong> Engage in meaningful conversations with multiple participants</span>
+                <span><strong className="text-foreground">Purposeful Speed Networking (2:00 PM):</strong> Engage in deep, intentional one-on-one conversations with guided faith-focused questions</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">4</span>
-                <span><strong className="text-foreground">Group Activities:</strong> Participate in team building and social dancing</span>
+                <span><strong className="text-foreground">Board Games & Character Challenge (3:00 PM):</strong> Wholesome games and team challenges that reveal character and values</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">5</span>
-                <span><strong className="text-foreground">Match Exchange:</strong> Submit your preferences and receive contact info for mutual matches</span>
+                <span><strong className="text-foreground">Vision Board Sharing (4:00 PM):</strong> Present your ministry calling and life vision to potential equally-yoked partners</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">6</span>
+                <span><strong className="text-foreground">Fellowship Dinner (5:00 PM):</strong> Vegetarian dinner with continued networking at assigned connection tables</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">7</span>
+                <span><strong className="text-foreground">Praise & Testimony Hour (6:00 PM):</strong> Solo songs, group hymns, testimonies, and closing prayer for God's blessing on new connections</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">8</span>
+                <span><strong className="text-foreground">Match Exchange (6:45 PM):</strong> Submit your connection preferences and receive contact info for mutual matches before departure</span>
               </li>
             </ul>
           </CardContent>
