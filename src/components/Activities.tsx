@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, BookOpen } from "lucide-react";
+import { Clock, Users, BookOpen, AlertCircle } from "lucide-react";
 import sabbathSelfieImage from "@/assets/sabbath-selfie.jpg";
 import boardGamesImage from "@/assets/board-games.jpg";
 import characterChallengeImage from "@/assets/character-challenge.jpg";
@@ -16,11 +16,70 @@ interface Activity {
   description: string;
   conversationPrompt?: string;
   instructions?: string[];
-  materials: string[];
   duration: string;
   groupSize: string;
   image: string;
+  extraInfo?: string;
 }
+
+// Materials data exported for Manager dashboard
+export const activityMaterials: Record<string, string[]> = {
+  "The Sabbath Selfie Icebreaker": [
+    "Name tags with church/district",
+    "Smartphones for group selfies",
+    "Conversation starter cards",
+    "Gentle background instrumental hymns"
+  ],
+  "Board Games & Purposeful Conversation": [
+    "Pictionary (Bible/SDA themed cards)",
+    "Jenga with faith questions",
+    "Monopoly or Kenya @50",
+    "Conversation question cards",
+    "4-6 game stations"
+  ],
+  "Character & Values Challenge": [
+    "Scenario cards with moral dilemmas",
+    "Flip charts and markers",
+    "Timer for each challenge",
+    "Scoring rubric for facilitators",
+    "Reflection worksheets"
+  ],
+  "My Mission Field Vision Board": [
+    "Pre-made vision board templates",
+    "Magazines with appropriate images",
+    "Colored markers and stickers",
+    "Scripture cards for inspiration",
+    "Presentation area with easels"
+  ],
+  "Faith & Fellowship Games": [
+    "Bible trivia question cards",
+    "SDA Heritage Bingo cards",
+    "SDA Hymnal for reference",
+    "Buzzers or bells for teams",
+    "Small prizes (devotionals, bookmarks)"
+  ],
+  "Praise & Testimony Hour": [
+    "Quality sound system with microphones",
+    "SDA Hymnal (physical and projected)",
+    "Piano/keyboard accompaniment",
+    "Testimony sign-up sheet",
+    "Song lyric projector"
+  ],
+  "Purposeful Speed Networking": [
+    "Numbered tables for rotation",
+    "Guided question cards (4 levels)",
+    "Personal note cards",
+    "Timer with gentle bell",
+    "Name tags with interests listed"
+  ],
+  "Fellowship Dinner & Networking": [
+    "Vegetarian catering or potluck coordination",
+    "Table assignments/seating chart",
+    "Conversation cards for dinner tables",
+    "Contact exchange cards",
+    "Background instrumental sacred music"
+  ],
+};
 
 const Activities = () => {
   const activities: Activity[] = [
@@ -29,12 +88,6 @@ const Activities = () => {
       goal: "Meet 3 new people instantly and share a favorite Sabbath memory",
       description: "A warm, faith-centered way to break the ice and celebrate our shared heritage of Sabbath keeping.",
       conversationPrompt: "Share your most memorable Sabbath experience - whether it was a special sunset vespers, a nature walk, a potluck blessing, or a moment when God spoke to your heart during the Sabbath hours.",
-      materials: [
-        "Name tags with church/district",
-        "Smartphones for group selfies",
-        "Conversation starter cards",
-        "Gentle background instrumental hymns"
-      ],
       duration: "20 minutes",
       groupSize: "Groups of 3-4",
       image: sabbathSelfieImage,
@@ -49,13 +102,6 @@ const Activities = () => {
         "Pictionary uses Bible stories and SDA heritage themes",
         "Jenga blocks have conversation starters written on them",
         "Focus on listening, respect, and gracious competition"
-      ],
-      materials: [
-        "Pictionary (Bible/SDA themed cards)",
-        "Jenga with faith questions",
-        "Monopoly or Kenya @50",
-        "Conversation question cards",
-        "4-6 game stations"
       ],
       duration: "45 minutes",
       groupSize: "4-6 per table",
@@ -72,13 +118,6 @@ const Activities = () => {
         "Debrief focuses on what each person learned about themselves",
         "Judges look for humility, collaboration, and biblical reasoning"
       ],
-      materials: [
-        "Scenario cards with moral dilemmas",
-        "Flip charts and markers",
-        "Timer for each challenge",
-        "Scoring rubric for facilitators",
-        "Reflection worksheets"
-      ],
       duration: "30 minutes",
       groupSize: "Teams of 5-6",
       image: characterChallengeImage,
@@ -88,13 +127,6 @@ const Activities = () => {
       goal: "Share personal ministry calling and life goals with potential partners",
       description: "Create or present vision boards that reveal your calling, ministry aspirations, and how you see God using you in His work.",
       conversationPrompt: "Share your 'My Mission Field' vision: Where has God placed you to serve? What ministry burns in your heart? How do you envision your future family serving the Lord together?",
-      materials: [
-        "Pre-made vision board templates",
-        "Magazines with appropriate images",
-        "Colored markers and stickers",
-        "Scripture cards for inspiration",
-        "Presentation area with easels"
-      ],
       duration: "35 minutes",
       groupSize: "Individual + sharing circles of 6",
       image: visionBoardImage,
@@ -109,13 +141,6 @@ const Activities = () => {
         "Hymn Humming Challenge: Guess the hymn from humming",
         "'Name That Prophet' charades",
         "Winners receive small, meaningful prizes (devotional books, bookmarks)"
-      ],
-      materials: [
-        "Bible trivia question cards",
-        "SDA Heritage Bingo cards",
-        "SDA Hymnal for reference",
-        "Buzzers or bells for teams",
-        "Small prizes (devotionals, bookmarks)"
       ],
       duration: "40 minutes",
       groupSize: "Teams of 4-5",
@@ -132,13 +157,6 @@ const Activities = () => {
         "3-minute testimony slots for volunteers",
         "Close with prayer and commitment song"
       ],
-      materials: [
-        "Quality sound system with microphones",
-        "SDA Hymnal (physical and projected)",
-        "Piano/keyboard accompaniment",
-        "Testimony sign-up sheet",
-        "Song lyric projector"
-      ],
       duration: "45 minutes",
       groupSize: "Full group",
       image: praiseWorshipImage,
@@ -153,13 +171,6 @@ const Activities = () => {
         "Questions progress: Faith journey → Ministry involvement → Life goals → Family vision",
         "Note cards for recording impressions and prayer requests",
         "Bell signals rotation every 5 minutes"
-      ],
-      materials: [
-        "Numbered tables for rotation",
-        "Guided question cards (4 levels)",
-        "Personal note cards",
-        "Timer with gentle bell",
-        "Name tags with interests listed"
       ],
       duration: "50 minutes (10 rounds)",
       groupSize: "One-on-one pairs",
@@ -176,16 +187,10 @@ const Activities = () => {
         "Share favorite family recipes and health tips",
         "Exchange contact information with dinner companions"
       ],
-      materials: [
-        "Vegetarian catering or potluck coordination",
-        "Table assignments/seating chart",
-        "Conversation cards for dinner tables",
-        "Contact exchange cards",
-        "Background instrumental sacred music"
-      ],
       duration: "60 minutes",
       groupSize: "Tables of 8",
       image: fellowshipDinnerImage,
+      extraInfo: "Dinner is at an additional cost of KES 500 (not included in ticket price)",
     },
   ];
 
@@ -256,17 +261,16 @@ const Activities = () => {
                   </div>
                 )}
                 
-                <div className="bg-muted/30 p-4 rounded-lg">
-                  <p className="font-semibold text-foreground text-sm mb-2">Materials Needed:</p>
-                  <ul className="text-sm text-muted-foreground grid grid-cols-1 gap-1">
-                    {activity.materials.map((material, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-secondary">✓</span>
-                        {material}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {activity.extraInfo && (
+                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        {activity.extraInfo}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

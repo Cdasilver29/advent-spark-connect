@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package } from "lucide-react";
+import { activityMaterials } from "@/components/Activities";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface EventDetails {
@@ -426,13 +427,14 @@ const Manager = () => {
         )}
 
         <Tabs defaultValue="event" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-6">
+          <TabsList className="grid w-full max-w-3xl grid-cols-7">
             <TabsTrigger value="event">Event</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
+            <TabsTrigger value="materials">Materials</TabsTrigger>
             <TabsTrigger value="tickets">Tickets</TabsTrigger>
             <TabsTrigger value="payments" onClick={() => fetchPayments()}>Payments</TabsTrigger>
-            <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit Logs</TabsTrigger>
+            <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit</TabsTrigger>
           </TabsList>
 
           {/* Event Details Tab */}
@@ -690,6 +692,37 @@ const Manager = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Materials Tab */}
+          <TabsContent value="materials">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" /> Activity Materials Checklist
+                </CardTitle>
+                <CardDescription>
+                  Materials needed for each activity. Use this as a preparation checklist.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  {Object.entries(activityMaterials).map(([activity, materials]) => (
+                    <div key={activity} className="border rounded-lg p-4">
+                      <h4 className="font-semibold text-lg mb-3 text-foreground">{activity}</h4>
+                      <ul className="grid sm:grid-cols-2 gap-2">
+                        {materials.map((material, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <span className="text-primary font-bold">•</span>
+                            {material}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tickets Tab */}
