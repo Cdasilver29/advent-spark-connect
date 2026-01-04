@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package, Users } from "lucide-react";
 import { activityMaterials } from "@/components/Activities";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -65,6 +65,20 @@ interface AuditLog {
   created_at: string;
 }
 
+interface Registration {
+  id: string;
+  registration_code: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  church_name: string;
+  church_district: string;
+  age_group: string;
+  ministry_interests: string[];
+  dietary_requirements: string[];
+  registered_at: string;
+}
+
 const Manager = () => {
   const { user, isLoading, isManager, signOut } = useAuth();
   const navigate = useNavigate();
@@ -76,10 +90,12 @@ const Manager = () => {
   const [ticketInventory, setTicketInventory] = useState<TicketInventory[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingPayments, setIsLoadingPayments] = useState(false);
   const [isLoadingAuditLogs, setIsLoadingAuditLogs] = useState(false);
+  const [isLoadingRegistrations, setIsLoadingRegistrations] = useState(false);
   
   // Form states
   const [newFlyer, setNewFlyer] = useState({ title: "", description: "", event_date: "" });
@@ -158,6 +174,27 @@ const Manager = () => {
     }
     
     setIsLoadingAuditLogs(false);
+  };
+
+  // Fetch registrations
+  const fetchRegistrations = async () => {
+    if (!user || !isManager) return;
+    
+    setIsLoadingRegistrations(true);
+    
+    const { data: regData, error } = await supabase
+      .from("registrations")
+      .select("id, registration_code, email, full_name, phone, church_name, church_district, age_group, ministry_interests, dietary_requirements, registered_at")
+      .order("registered_at", { ascending: false })
+      .limit(100);
+    
+    if (error) {
+      console.error("Error fetching registrations:", error);
+    } else if (regData) {
+      setRegistrations(regData as Registration[]);
+    }
+    
+    setIsLoadingRegistrations(false);
   };
 
   useEffect(() => {
@@ -427,12 +464,13 @@ const Manager = () => {
         )}
 
         <Tabs defaultValue="event" className="space-y-6">
-          <TabsList className="grid w-full max-w-3xl grid-cols-7">
+          <TabsList className="grid w-full max-w-4xl grid-cols-8">
             <TabsTrigger value="event">Event</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="materials">Materials</TabsTrigger>
             <TabsTrigger value="tickets">Tickets</TabsTrigger>
+            <TabsTrigger value="registrations" onClick={() => fetchRegistrations()}>Registrations</TabsTrigger>
             <TabsTrigger value="payments" onClick={() => fetchPayments()}>Payments</TabsTrigger>
             <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit</TabsTrigger>
           </TabsList>
@@ -760,6 +798,71 @@ const Manager = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Registrations Tab */}
+          <TabsContent value="registrations">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" /> Participant Registrations
+                </CardTitle>
+                <CardDescription>
+                  View all registered participants for the event.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!isManager ? (
+                  <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                    <AlertTitle>Access Denied</AlertTitle>
+                    <AlertDescription>
+                      You need manager permissions to view registrations.
+                    </AlertDescription>
+                  </Alert>
+                ) : isLoadingRegistrations ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading registrations...</div>
+                ) : registrations.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No registrations yet.</p>
+                    <Button variant="outline" className="mt-4" onClick={fetchRegistrations}>
+                      Refresh
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">Total: {registrations.length} registrations</p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 px-2">Name</th>
+                            <th className="text-left py-2 px-2">Code</th>
+                            <th className="text-left py-2 px-2">Church</th>
+                            <th className="text-left py-2 px-2">Age</th>
+                            <th className="text-left py-2 px-2">Dietary</th>
+                            <th className="text-left py-2 px-2">Registered</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {registrations.map((reg) => (
+                            <tr key={reg.id} className="border-b hover:bg-muted/50">
+                              <td className="py-2 px-2 font-medium">{reg.full_name}</td>
+                              <td className="py-2 px-2 font-mono text-xs">{reg.registration_code}</td>
+                              <td className="py-2 px-2 text-xs">{reg.church_name}</td>
+                              <td className="py-2 px-2">{reg.age_group}</td>
+                              <td className="py-2 px-2 text-xs">{reg.dietary_requirements?.join(", ") || "None"}</td>
+                              <td className="py-2 px-2 text-xs">{new Date(reg.registered_at).toLocaleDateString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <Button variant="outline" onClick={fetchRegistrations}>Refresh</Button>
                   </div>
                 )}
               </CardContent>

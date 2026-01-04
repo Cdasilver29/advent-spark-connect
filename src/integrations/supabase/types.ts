@@ -123,6 +123,7 @@ export type Database = {
           merchant_request_id: string | null
           mpesa_receipt_number: string | null
           phone_number: string
+          registration_code: string | null
           result_code: number | null
           result_desc: string | null
           status: string
@@ -139,6 +140,7 @@ export type Database = {
           merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
           phone_number: string
+          registration_code?: string | null
           result_code?: number | null
           result_desc?: string | null
           status?: string
@@ -155,6 +157,7 @@ export type Database = {
           merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
           phone_number?: string
+          registration_code?: string | null
           result_code?: number | null
           result_desc?: string | null
           status?: string
@@ -187,6 +190,71 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      registrations: {
+        Row: {
+          age_group: string
+          church_district: string
+          church_name: string
+          created_at: string
+          dietary_requirements: string[] | null
+          email: string
+          expectations: string | null
+          full_name: string
+          id: string
+          ministry_interests: string[] | null
+          other_dietary: string | null
+          payment_id: string | null
+          phone: string
+          registered_at: string
+          registration_code: string
+          updated_at: string
+        }
+        Insert: {
+          age_group: string
+          church_district: string
+          church_name: string
+          created_at?: string
+          dietary_requirements?: string[] | null
+          email: string
+          expectations?: string | null
+          full_name: string
+          id?: string
+          ministry_interests?: string[] | null
+          other_dietary?: string | null
+          payment_id?: string | null
+          phone: string
+          registered_at?: string
+          registration_code: string
+          updated_at?: string
+        }
+        Update: {
+          age_group?: string
+          church_district?: string
+          church_name?: string
+          created_at?: string
+          dietary_requirements?: string[] | null
+          email?: string
+          expectations?: string | null
+          full_name?: string
+          id?: string
+          ministry_interests?: string[] | null
+          other_dietary?: string | null
+          payment_id?: string | null
+          phone?: string
+          registered_at?: string
+          registration_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registrations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_links: {
         Row: {
@@ -271,6 +339,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_registration_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

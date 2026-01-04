@@ -44,14 +44,29 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-white/80">
               <li>
-                <a href="#about" className="hover:text-secondary transition-colors">
+                <Link to="/about" className="hover:text-secondary transition-colors">
                   About the Event
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#tickets" className="hover:text-secondary transition-colors">
+                <Link to="/activities" className="hover:text-secondary transition-colors">
+                  Activities
+                </Link>
+              </li>
+              <li>
+                <Link to="/tickets" className="hover:text-secondary transition-colors">
                   Get Tickets
-                </a>
+                </Link>
+              </li>
+              <li>
+                <Link to="/register" className="hover:text-secondary transition-colors">
+                  Register
+                </Link>
+              </li>
+              <li>
+                <Link to="/program" className="hover:text-secondary transition-colors">
+                  Event Program
+                </Link>
               </li>
               <li>
                 <a href="https://www.adventist.org" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
