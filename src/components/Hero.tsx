@@ -1,12 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-event.jpg";
 
 const Hero = () => {
-  const scrollToTickets = () => {
-    document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -48,21 +45,23 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.5s' }}>
-          <Button 
-            size="lg" 
-            onClick={scrollToTickets}
-            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-lg px-8 py-6 shadow-strong hover:scale-105 transition-transform"
-          >
-            Get Your Ticket
-          </Button>
-          <Button 
-            size="lg" 
-            variant="outline"
-            onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
-            className="border-2 border-white text-white hover:bg-white hover:text-primary font-semibold text-lg px-8 py-6"
-          >
-            Learn More
-          </Button>
+          <Link to="/tickets">
+            <Button 
+              size="lg" 
+              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-lg px-8 py-6 shadow-strong hover:scale-105 transition-transform"
+            >
+              Get Your Ticket
+            </Button>
+          </Link>
+          <Link to="/about">
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-primary font-semibold text-lg px-8 py-6"
+            >
+              Learn More
+            </Button>
+          </Link>
         </div>
       </div>
 

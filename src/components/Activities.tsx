@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, BookOpen, AlertCircle } from "lucide-react";
+import { Clock, Users, BookOpen } from "lucide-react";
 import sabbathSelfieImage from "@/assets/sabbath-selfie.jpg";
 import boardGamesImage from "@/assets/board-games.jpg";
 import characterChallengeImage from "@/assets/character-challenge.jpg";
@@ -8,7 +8,7 @@ import visionBoardImage from "@/assets/vision-board.jpg";
 import faithGamesImage from "@/assets/faith-games.jpg";
 import praiseWorshipImage from "@/assets/praise-worship.jpg";
 import roundtableImage from "@/assets/roundtable-discussion.jpg";
-import fellowshipDinnerImage from "@/assets/fellowship-dinner.jpg";
+import teamBuildingImage from "@/assets/team-building.jpg";
 
 interface Activity {
   title: string;
@@ -19,7 +19,6 @@ interface Activity {
   duration: string;
   groupSize: string;
   image: string;
-  extraInfo?: string;
 }
 
 // Materials data exported for Manager dashboard
@@ -72,12 +71,12 @@ export const activityMaterials: Record<string, string[]> = {
     "Timer with gentle bell",
     "Name tags with interests listed"
   ],
-  "Fellowship Dinner & Networking": [
-    "Vegetarian catering or potluck coordination",
-    "Table assignments/seating chart",
-    "Conversation cards for dinner tables",
-    "Contact exchange cards",
-    "Background instrumental sacred music"
+  "Prayer Partner Connection": [
+    "Prayer request cards",
+    "Partnership commitment cards",
+    "Scripture promise cards",
+    "Quiet prayer corners setup",
+    "Gentle instrumental music"
   ],
 };
 
@@ -177,20 +176,19 @@ const Activities = () => {
       image: roundtableImage,
     },
     {
-      title: "Fellowship Dinner & Networking",
-      goal: "Build community through shared vegetarian meal and continued connection",
-      description: "Enjoy a blessed vegetarian potluck-style dinner while continuing meaningful conversations in a relaxed, family atmosphere.",
+      title: "Prayer Partner Connection",
+      goal: "Form meaningful prayer partnerships for continued spiritual support",
+      description: "A sacred time to connect with a prayer partner, share prayer requests, and commit to lifting each other up in prayer beyond the event.",
       instructions: [
-        "Begin with corporate prayer of thanksgiving",
-        "Assigned 'connection tables' mix participants",
-        "Table hosts facilitate continued conversation",
-        "Share favorite family recipes and health tips",
-        "Exchange contact information with dinner companions"
+        "Prayerfully select a prayer partner from new connections",
+        "Share 3 specific prayer requests with each other",
+        "Exchange contact information for ongoing prayer support",
+        "Pray together for each other's requests and future",
+        "Sign a prayer partnership commitment card"
       ],
-      duration: "60 minutes",
-      groupSize: "Tables of 8",
-      image: fellowshipDinnerImage,
-      extraInfo: "Dinner is at an additional cost of KES 500 (not included in ticket price)",
+      duration: "25 minutes",
+      groupSize: "Pairs",
+      image: teamBuildingImage,
     },
   ];
 
@@ -258,17 +256,6 @@ const Activities = () => {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-                
-                {activity.extraInfo && (
-                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                        {activity.extraInfo}
-                      </p>
-                    </div>
                   </div>
                 )}
                 

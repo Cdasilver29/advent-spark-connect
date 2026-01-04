@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Info } from "lucide-react";
+import { Calendar, Clock, MapPin, Info, Heart } from "lucide-react";
 
 interface EventDetailsData {
   event_date: string;
@@ -123,17 +123,41 @@ const EventDetails = () => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">6</span>
-                <span><strong className="text-foreground">Fellowship Dinner (5:00 PM):</strong> Vegetarian dinner with continued networking at assigned connection tables</span>
+                <span><strong className="text-foreground">Faith & Fellowship Games (4:45 PM):</strong> Bible trivia, SDA heritage challenges, and hymn games with fun prizes</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">7</span>
-                <span><strong className="text-foreground">Praise & Testimony Hour (6:00 PM):</strong> Solo songs, group hymns, testimonies, and closing prayer for God's blessing on new connections</span>
+                <span><strong className="text-foreground">Prayer Partner Connection (5:30 PM):</strong> Form lasting prayer partnerships with new connections for continued spiritual support</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">8</span>
+                <span><strong className="text-foreground">Praise & Testimony Hour (6:00 PM):</strong> Solo songs, group hymns, testimonies, and closing prayer for God's blessing on new connections</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">9</span>
                 <span><strong className="text-foreground">Match Exchange (6:45 PM):</strong> Submit your connection preferences and receive contact info for mutual matches before departure</span>
               </li>
             </ul>
+          </CardContent>
+        </Card>
+
+        {/* Special Dinner Note for Matched Couples */}
+        <Card className="max-w-4xl mx-auto mt-8 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border-secondary/30">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <Heart className="w-8 h-8 text-secondary" fill="currentColor" />
+              <h3 className="text-2xl font-bold text-foreground">For Matched Couples</h3>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Couples who mutually match during the event will be invited to an exclusive 
+              <strong className="text-foreground"> Follow-Up Fellowship Dinner</strong> (scheduled separately) 
+              where you can continue getting to know each other in a relaxed, supervised environment. 
+              This special dinner is part of our commitment to nurturing Christ-centered relationships 
+              that could lead to marriage. Matched couples will receive separate invitations with details.
+            </p>
+            <p className="mt-4 text-sm text-secondary font-semibold italic">
+              "He who finds a wife finds a good thing and obtains favor from the Lord" — Proverbs 18:22
+            </p>
           </CardContent>
         </Card>
       </div>

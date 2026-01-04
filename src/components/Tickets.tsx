@@ -114,22 +114,6 @@ const Tickets = () => {
       ],
       popular: false,
     },
-    {
-      name: "VIP Experience",
-      price: "KES 5,000",
-      description: "Premium package (All ages)",
-      features: [
-        "Full event access",
-        "All activities included",
-        "Premium seating area",
-        "VIP welcome package",
-        "Professional photo session",
-        "Priority match coordination",
-        "Exclusive networking hour",
-        "Complimentary drinks",
-      ],
-      popular: false,
-    },
   ];
 
   return (
@@ -148,7 +132,7 @@ const Tickets = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {ticketTiers.map((tier, index) => {
             const remaining = getRemaining(tier.name);
             const soldOut = isSoldOut(tier.name);
@@ -179,7 +163,7 @@ const Tickets = () => {
                 )}
                 
                 <CardHeader className="text-center pb-8 pt-8">
-                  <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{tier.name}</CardTitle>
                   <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
                   {remaining !== null && !soldOut && (
                     <p className="text-xs text-primary font-semibold mb-2">
@@ -192,7 +176,7 @@ const Tickets = () => {
                         {tier.originalPrice}
                       </span>
                     )}
-                    <div className="text-4xl font-bold text-primary">{tier.price}</div>
+                    <div className="text-3xl font-bold text-primary">{tier.price}</div>
                   </div>
                 </CardHeader>
                 
@@ -227,7 +211,7 @@ const Tickets = () => {
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
-            Payment via M-PESA • Instant confirmation
+            Payment via M-PESA • Instant confirmation • Registration code sent to email
           </p>
           <p className="text-sm text-muted-foreground">
             Secure payment powered by Safaricom Daraja API
