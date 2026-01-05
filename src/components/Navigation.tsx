@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -23,11 +23,15 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-secondary" fill="currentColor" />
+            <img 
+              src="https://www.adventist.org/wp-content/uploads/2019/06/adventist-symbol-tm-circle-whitebg.png" 
+              alt="SDA Logo" 
+              className="w-8 h-8"
+            />
             <span className="text-white font-bold text-lg hidden sm:inline">
-              Adventist Singles Spark
+              Singles Spark
             </span>
-            <span className="text-white font-bold text-lg sm:hidden">ASS</span>
+            <span className="text-white font-bold text-lg sm:hidden">Spark</span>
           </Link>
 
           {/* Desktop Navigation */}

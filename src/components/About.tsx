@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Users, Church, Gift, ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Heart, Users, Church, Gift } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import faithCenteredImg from "@/assets/faith-centered.jpg";
 import intentionalConnectionsImg from "@/assets/intentional-connections.jpg";
 import adventistCommunityImg from "@/assets/adventist-community.jpg";
 import weddingSponsorshipImg from "@/assets/wedding-sponsorship.jpg";
 
 const About = () => {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
 
   const features = [
     {
@@ -53,7 +53,6 @@ const About = () => {
           "**The Second Coming**: We believe in the literal, personal, visible return of Jesus Christ. The second coming is the blessed hope of the church and the grand climax of the gospel. \"Adventist\" comes from our emphasis on Christ's advent or return.",
           "**Health Message**: Adventists follow health principles including a predominantly plant-based diet. Many are vegetarian, and all abstain from unclean meats, alcohol, tobacco, and harmful substances. Our bodies are temples of the Holy Spirit (1 Corinthians 6:19-20).",
           "**The Remnant Church**: We believe God has called out a remnant church to proclaim the three angels' messages of Revelation 14 — calling people to worship the Creator, announcing Babylon's fall, and warning against false worship.",
-          "**The Sanctuary**: We believe in Christ's ministry in the heavenly sanctuary, where He intercedes for us. Since 1844, He has been conducting a work of judgment that will culminate in His return.",
         ],
       },
     },
@@ -68,23 +67,18 @@ const About = () => {
           "**Christian Weddings**: Adventist weddings are Christ-centered ceremonies that honor God. They typically take place in Adventist churches and are conducted by ordained ministers, focusing on the sacred covenant being made before God.",
           "**Stewardship**: Adventists believe we are stewards of all God has given us — time, talents, and finances. This includes being wise with wedding expenses and starting marriage on solid financial ground.",
           "**Tithe & Offerings**: Returning a faithful tithe (10% of income) and giving offerings is an act of worship and acknowledgment that God owns everything. Couples are encouraged to establish this practice in their new home.",
-          "**Simple Living**: Rather than elaborate, expensive weddings, Adventists are encouraged to focus on the spiritual meaning of the ceremony and use resources wisely to begin their new life together.",
           "**Community Support**: The church community plays an important role in supporting new couples through fellowship, mentoring, and encouragement as they build their new family unit.",
         ],
       },
     },
   ];
 
-  const toggleExpanded = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
   return (
     <section id="about" className="py-20 bg-gradient-subtle">
       <div className="container px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            About Adventist Singles Spark
+            About Singles Spark
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             A unique matchmaking event designed to help Adventist singles find meaningful connections 
@@ -96,17 +90,14 @@ const About = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className={cn(
-                "border-none shadow-soft hover:shadow-medium transition-all cursor-pointer overflow-hidden",
-                expandedIndex === index && "ring-2 ring-primary shadow-medium"
-              )}
-              onClick={() => toggleExpanded(index)}
+              className="border-none shadow-soft hover:shadow-medium transition-all cursor-pointer overflow-hidden group"
+              onClick={() => setSelectedFeature(index)}
             >
               <div className="relative h-40 overflow-hidden">
                 <img 
                   src={feature.image} 
                   alt={feature.title}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3">
@@ -118,52 +109,51 @@ const About = () => {
               <CardContent className="pt-4 text-center">
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm mb-3">{feature.description}</p>
-                <div className="flex items-center justify-center gap-2 text-primary text-sm font-medium">
-                  <span>Learn more</span>
-                  {expandedIndex === index ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </div>
+                <span className="text-primary text-sm font-medium hover:underline">
+                  Learn more →
+                </span>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Expanded Content */}
-        {expandedIndex !== null && (
-          <Card className="mb-16 border-primary/20 bg-background animate-in slide-in-from-top-4 duration-300">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-6 text-center">
-                {features[expandedIndex].expandedContent.title}
-              </h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                {features[expandedIndex].expandedContent.content.map((item, idx) => {
-                  const [title, ...rest] = item.split(": ");
-                  const content = rest.join(": ");
-                  return (
-                    <div key={idx} className="space-y-2">
-                      <h4 className="font-semibold text-foreground">
-                        {title.replace(/\*\*/g, "")}
-                      </h4>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {content}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Dialog for expanded content */}
+        <Dialog open={selectedFeature !== null} onOpenChange={() => setSelectedFeature(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            {selectedFeature !== null && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    {features[selectedFeature].expandedContent.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-6 mt-4">
+                  {features[selectedFeature].expandedContent.content.map((item, idx) => {
+                    const [title, ...rest] = item.split(": ");
+                    const content = rest.join(": ");
+                    return (
+                      <div key={idx} className="space-y-2">
+                        <h4 className="font-semibold text-foreground">
+                          {title.replace(/\*\*/g, "")}
+                        </h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          {content}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         <Card className="bg-gradient-hero text-white border-none shadow-medium">
           <CardContent className="p-8 md:p-12">
             <div className="max-w-3xl mx-auto text-center">
               <h3 className="text-3xl font-bold mb-4">Our Mission</h3>
               <p className="text-lg leading-relaxed mb-6">
-                Adventist Singles Spark exists to create a safe, faith-filled space where young Adventist 
+                Singles Spark exists to create a safe, faith-filled space where young Adventist 
                 adults can meet, connect, and potentially find their life partner. We believe in the importance 
                 of being equally yoked and are committed to fostering relationships that honor God and build 
                 strong Adventist families.

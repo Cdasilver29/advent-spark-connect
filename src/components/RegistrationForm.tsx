@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Church, Users, Heart, Utensils, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
+import { UserPlus, Church, Users, Heart, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,8 +21,6 @@ const registrationSchema = z.object({
   churchDistrict: z.string().min(2, "Church district/conference is required").max(100),
   ageGroup: z.string().min(1, "Please select your age group"),
   ministryInterests: z.array(z.string()).min(1, "Please select at least one ministry interest"),
-  dietaryRequirements: z.array(z.string()),
-  otherDietary: z.string().max(200).optional(),
   expectations: z.string().max(500).optional(),
 });
 
@@ -41,15 +39,6 @@ const ministryOptions = [
   "Hospitality Ministry",
 ];
 
-const dietaryOptions = [
-  "Vegetarian",
-  "Vegan",
-  "Gluten-Free",
-  "Nut Allergy",
-  "Dairy-Free",
-  "No Restrictions",
-];
-
 const RegistrationForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,8 +54,6 @@ const RegistrationForm = () => {
     churchDistrict: "",
     ageGroup: "",
     ministryInterests: [] as string[],
-    dietaryRequirements: [] as string[],
-    otherDietary: "",
     expectations: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -132,15 +119,6 @@ const RegistrationForm = () => {
     }));
   };
 
-  const handleDietaryToggle = (dietary: string) => {
-    setFormData(prev => ({
-      ...prev,
-      dietaryRequirements: prev.dietaryRequirements.includes(dietary)
-        ? prev.dietaryRequirements.filter(d => d !== dietary)
-        : [...prev.dietaryRequirements, dietary]
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -181,8 +159,6 @@ const RegistrationForm = () => {
           church_district: formData.churchDistrict,
           age_group: formData.ageGroup,
           ministry_interests: formData.ministryInterests,
-          dietary_requirements: formData.dietaryRequirements,
-          other_dietary: formData.otherDietary || null,
           expectations: formData.expectations || null,
         });
 
@@ -205,8 +181,6 @@ const RegistrationForm = () => {
         churchDistrict: "",
         ageGroup: "",
         ministryInterests: [],
-        dietaryRequirements: [],
-        otherDietary: "",
         expectations: "",
       });
       setCodeVerified(false);
@@ -432,38 +406,6 @@ const RegistrationForm = () => {
                       ))}
                     </div>
                     {errors.ministryInterests && <p className="text-sm text-destructive">{errors.ministryInterests}</p>}
-                  </div>
-
-                  {/* Dietary Requirements */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <Utensils className="w-5 h-5 text-primary" />
-                      Dietary Requirements
-                    </h3>
-                    <p className="text-sm text-muted-foreground">Help us accommodate your dietary needs for refreshments:</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {dietaryOptions.map((dietary) => (
-                        <div key={dietary} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={dietary}
-                            checked={formData.dietaryRequirements.includes(dietary)}
-                            onCheckedChange={() => handleDietaryToggle(dietary)}
-                          />
-                          <Label htmlFor={dietary} className="text-sm cursor-pointer">
-                            {dietary}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="otherDietary">Other Dietary Needs</Label>
-                      <Input
-                        id="otherDietary"
-                        value={formData.otherDietary}
-                        onChange={(e) => setFormData({ ...formData, otherDietary: e.target.value })}
-                        placeholder="Please specify any other dietary requirements"
-                      />
-                    </div>
                   </div>
 
                   {/* Expectations */}
