@@ -194,6 +194,9 @@ export type Database = {
       registrations: {
         Row: {
           age_group: string
+          checked_in: boolean
+          checked_in_at: string | null
+          checked_in_by: string | null
           church_district: string
           church_name: string
           created_at: string
@@ -208,10 +211,15 @@ export type Database = {
           phone: string
           registered_at: string
           registration_code: string
+          reminder_sent: boolean
+          reminder_sent_at: string | null
           updated_at: string
         }
         Insert: {
           age_group: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           church_district: string
           church_name: string
           created_at?: string
@@ -226,10 +234,15 @@ export type Database = {
           phone: string
           registered_at?: string
           registration_code: string
+          reminder_sent?: boolean
+          reminder_sent_at?: string | null
           updated_at?: string
         }
         Update: {
           age_group?: string
+          checked_in?: boolean
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           church_district?: string
           church_name?: string
           created_at?: string
@@ -244,6 +257,8 @@ export type Database = {
           phone?: string
           registered_at?: string
           registration_code?: string
+          reminder_sent?: boolean
+          reminder_sent_at?: string | null
           updated_at?: string
         }
         Relationships: [
