@@ -12,6 +12,7 @@ import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink
 import { activityMaterials } from "@/components/Activities";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import QRScanner from "@/components/QRScanner";
+import CheckInStatistics from "@/components/CheckInStatistics";
 
 interface EventDetails {
   id: string;
@@ -553,13 +554,16 @@ const Manager = () => {
           {/* Check-In Tab */}
           <TabsContent value="checkin">
             <div className="space-y-6">
+              {/* Check-In Statistics */}
+              <CheckInStatistics />
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <QrCode className="w-5 h-5" /> Event Check-In
                   </CardTitle>
                   <CardDescription>
-                    Scan participant QR codes to check them in at the event entrance
+                    Scan participant QR codes or enter registration codes manually
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
