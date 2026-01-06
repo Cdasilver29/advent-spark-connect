@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
 import EventDetails from "@/components/EventDetails";
 import Footer from "@/components/Footer";
 
@@ -22,7 +21,6 @@ const Index = () => {
     <div className="min-h-screen">
       <Navigation />
       <Hero />
-      <About />
       <EventDetails />
       <Footer />
     </div>
