@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import EventDetails from "@/components/EventDetails";
 import EventFlyers from "@/components/EventFlyers";
 import Testimonials from "@/components/Testimonials";
+import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -26,6 +27,7 @@ const Index = () => {
       <EventDetails />
       <EventFlyers />
       <Testimonials />
+      <FAQ />
       <Footer />
     </div>
   );

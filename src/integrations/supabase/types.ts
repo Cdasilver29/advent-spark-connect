@@ -113,6 +113,39 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -298,6 +331,42 @@ export type Database = {
           platform?: string
           updated_at?: string
           url?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          display_order: number
+          highlight: string
+          id: string
+          is_active: boolean
+          location: string
+          name: string
+          quote: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          highlight: string
+          id?: string
+          is_active?: boolean
+          location: string
+          name: string
+          quote: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          highlight?: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          name?: string
+          quote?: string
+          updated_at?: string
         }
         Relationships: []
       }
