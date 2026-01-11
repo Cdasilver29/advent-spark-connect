@@ -1,38 +1,61 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Heart, Star } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Grace M.",
-    location: "Nairobi",
-    quote: "Singles Spark was a blessing! I came expecting fellowship but left with lifelong friends who share my faith. The activities were so thoughtfully designed to help us connect genuinely.",
-    highlight: "Found lifelong friends",
-  },
-  {
-    id: 2,
-    name: "David K.",
-    location: "Mombasa",
-    quote: "As a young Adventist professional, finding like-minded singles was challenging. This event changed everything. The Christ-centered approach made all the difference.",
-    highlight: "Christ-centered connections",
-  },
-  {
-    id: 3,
-    name: "Sarah N.",
-    location: "Kisumu",
-    quote: "I met my best friend at Singles Spark last year. The team building activities and worship sessions created such a warm, welcoming atmosphere. Can't wait for this year!",
-    highlight: "Met my best friend",
-  },
-  {
-    id: 4,
-    name: "James O.",
-    location: "Eldoret",
-    quote: "The purposeful fellowship approach is what sets this apart. It's not just about meeting people—it's about growing together in faith while forming meaningful relationships.",
-    highlight: "Purposeful fellowship",
-  },
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  location: string;
+  quote: string;
+  highlight: string;
+}
 
 const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    const { data, error } = await supabase
+      .from("testimonials")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (data && !error) {
+      setTestimonials(data);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-muted/30">
+        <div className="container px-4">
+          <div className="text-center mb-16">
+            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4" />
+            <Skeleton className="h-12 w-80 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-48 rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container px-4">
