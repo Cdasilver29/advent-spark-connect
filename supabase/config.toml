@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.send-ticket-email]
 verify_jwt = false
+
+[functions.verify-registration-code]
+verify_jwt = false
+
+[functions.send-reminder-emails]
+verify_jwt = false
