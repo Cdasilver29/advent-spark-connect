@@ -69,29 +69,19 @@ const RegistrationForm = () => {
     setErrors({});
 
     try {
-      // Check if the code exists and get the associated email
-      const { data, error } = await supabase
-        .from("payments")
-        .select("email, registration_code, status")
-        .eq("registration_code", code)
-        .eq("status", "completed")
-        .single();
+      // Use secure edge function to verify code
+      const { data, error } = await supabase.functions.invoke("verify-registration-code", {
+        body: { registrationCode: code },
+      });
 
-      if (error || !data) {
-        setErrors({ registrationCode: "Invalid registration code. Please check your ticket email." });
+      if (error) {
+        setErrors({ registrationCode: "Error verifying code. Please try again." });
         setCodeVerified(false);
         return;
       }
 
-      // Check if already registered
-      const { data: existingReg } = await supabase
-        .from("registrations")
-        .select("id")
-        .eq("registration_code", code)
-        .single();
-
-      if (existingReg) {
-        setErrors({ registrationCode: "This code has already been used to register." });
+      if (!data.valid) {
+        setErrors({ registrationCode: data.error || "Invalid registration code." });
         setCodeVerified(false);
         return;
       }
@@ -138,19 +128,11 @@ const RegistrationForm = () => {
 
     try {
       const validated = registrationSchema.parse(formData);
-
-      // Get payment ID for this registration code
-      const { data: payment } = await supabase
-        .from("payments")
-        .select("id")
-        .eq("registration_code", formData.registrationCode.toUpperCase())
-        .single();
       
-      // Save to database
+      // Save to database - payment_id will be linked server-side if needed
       const { error: insertError } = await supabase
         .from("registrations")
         .insert({
-          payment_id: payment?.id,
           registration_code: formData.registrationCode.toUpperCase(),
           email: formData.email,
           full_name: formData.fullName,
