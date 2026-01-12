@@ -64,7 +64,7 @@ const EventDetails = () => {
   return (
     <section className="py-20 bg-gradient-subtle">
       <div className="container px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Event Details
           </h2>
@@ -77,10 +77,11 @@ const EventDetails = () => {
           {details.map((detail, index) => (
             <Card 
               key={index}
-              className="border-none shadow-soft hover:shadow-medium transition-all text-center"
+              className="border-none shadow-soft hover:shadow-medium hover:-translate-y-2 transition-all duration-300 text-center animate-slide-up"
+              style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'backwards' }}
             >
               <CardContent className="pt-8 pb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4 group-hover:scale-110 transition-transform duration-300">
                   <detail.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-muted-foreground mb-2">

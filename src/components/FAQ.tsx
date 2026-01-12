@@ -73,9 +73,9 @@ const FAQ = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <HelpCircle className="w-8 h-8 text-primary" />
             </div>
           </div>
@@ -88,21 +88,26 @@ const FAQ = () => {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          {Object.entries(groupedFaqs).map(([category, categoryFaqs]) => (
-            <div key={category} className="mb-8">
+          {Object.entries(groupedFaqs).map(([category, categoryFaqs], categoryIndex) => (
+            <div 
+              key={category} 
+              className="mb-8 animate-slide-up"
+              style={{ animationDelay: `${categoryIndex * 0.15}s`, animationFillMode: 'backwards' }}
+            >
               <h3 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-primary" />
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 {category}
               </h3>
               <Accordion type="single" collapsible className="space-y-3">
-                {categoryFaqs.map((faq) => (
+                {categoryFaqs.map((faq, faqIndex) => (
                   <AccordionItem
                     key={faq.id}
                     value={faq.id}
-                    className="border border-border/50 rounded-lg px-4 bg-card shadow-soft hover:shadow-medium transition-shadow"
+                    className="border border-border/50 rounded-lg px-4 bg-card shadow-soft hover:shadow-medium hover:border-primary/30 transition-all duration-300"
+                    style={{ animationDelay: `${(categoryIndex * 0.15) + (faqIndex * 0.05)}s` }}
                   >
-                    <AccordionTrigger className="text-left hover:no-underline py-4">
-                      <span className="font-medium text-foreground pr-4">
+                    <AccordionTrigger className="text-left hover:no-underline py-4 group">
+                      <span className="font-medium text-foreground pr-4 group-hover:text-primary transition-colors duration-300">
                         {faq.question}
                       </span>
                     </AccordionTrigger>
