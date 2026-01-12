@@ -13,7 +13,7 @@ interface EventDetailsData {
 
 const EventFlyerCard = () => {
   const [eventData, setEventData] = useState<EventDetailsData>({
-    event_date: "Sunday, February 2, 2025",
+    event_date: "Sunday, February 2, 2026",
     event_time: "1:00 PM - 7:00 PM",
     venue: "To Be Announced",
     dress_code: "Smart Casual",

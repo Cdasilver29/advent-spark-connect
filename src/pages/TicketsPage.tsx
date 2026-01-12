@@ -66,7 +66,7 @@ const TicketsPage = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center justify-center md:justify-start gap-3">
                     <Calendar className="w-5 h-5 text-secondary" />
-                    <span>Sunday, February 2, 2025</span>
+                    <span>Sunday, February 2, 2026</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start gap-3">
                     <Clock className="w-5 h-5 text-secondary" />
