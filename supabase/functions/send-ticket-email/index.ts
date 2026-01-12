@@ -200,7 +200,7 @@ serve(async (req) => {
                 <ol style="margin: 0; padding: 0 0 0 20px; color: #1e40af; font-size: 14px; line-height: 1.8;">
                   <li><strong>Complete Registration:</strong> Visit our website and go to the Registration page</li>
                   <li><strong>Enter Your Code:</strong> Use the registration code above: <strong>${registrationCode}</strong></li>
-                  <li><strong>Fill Details:</strong> Provide your church affiliation, ministry interests, and dietary requirements</li>
+                  <li><strong>Fill Details:</strong> Provide your church affiliation and ministry interests</li>
                   <li><strong>Prepare for the Event:</strong> Dress code is Smart Casual, arrive 15 minutes early</li>
                 </ol>
               </div>

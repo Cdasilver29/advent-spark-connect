@@ -141,7 +141,7 @@ const EventDetails = () => {
           </CardContent>
         </Card>
 
-        {/* Special Dinner Note for Matched Couples */}
+        {/* Special Note for Matched Couples */}
         <Card className="max-w-4xl mx-auto mt-8 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border-secondary/30">
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-4">
@@ -149,11 +149,10 @@ const EventDetails = () => {
               <h3 className="text-2xl font-bold text-foreground">For Matched Couples</h3>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Couples who mutually match during the event will be invited to an exclusive 
-              <strong className="text-foreground"> Follow-Up Fellowship Dinner</strong> (scheduled separately) 
-              where you can continue getting to know each other in a relaxed, supervised environment. 
-              This special dinner is part of our commitment to nurturing Christ-centered relationships 
-              that could lead to marriage. Matched couples will receive separate invitations with details.
+              Couples who mutually match during the event will receive contact information for each other
+              and are encouraged to continue getting to know one another through wholesome, supervised interactions. 
+              This is part of our commitment to nurturing Christ-centered relationships 
+              that could lead to marriage. Matched couples will receive follow-up communication with guidance.
             </p>
             <p className="mt-4 text-sm text-secondary font-semibold italic">
               "He who finds a wife finds a good thing and obtains favor from the Lord" — Proverbs 18:22

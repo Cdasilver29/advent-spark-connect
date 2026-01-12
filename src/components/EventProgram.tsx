@@ -108,18 +108,7 @@ EVENT PROGRAM
 • Small group discussions (6 per circle)
 • How you envision family serving the Lord
 
-5:00 PM - 6:00 PM | FELLOWSHIP DINNER
-─────────────────────────────────────────
-• Corporate prayer of thanksgiving
-• Vegetarian meal at assigned tables
-• Table hosts facilitate conversation
-• Share favorite recipes and health tips
-• Exchange contact information
-
-⚠️ NOTE: Dinner is at additional cost
-   (KES 500 - not included in ticket price)
-
-6:00 PM - 6:45 PM | PRAISE & TESTIMONY HOUR
+5:00 PM - 5:45 PM | PRAISE & TESTIMONY HOUR
 ─────────────────────────────────────────
 • Solo song performances
 • Group hymn singing (SDA Hymnal)
@@ -127,7 +116,7 @@ EVENT PROGRAM
 • 3-minute testimony slots
 • Closing prayer and commitment song
 
-6:45 PM - 7:00 PM | MATCH EXCHANGE & DEPARTURE
+5:45 PM - 6:00 PM | MATCH EXCHANGE & DEPARTURE
 ─────────────────────────────────────────
 • Submit connection preferences
 • Receive contact info for mutual matches
