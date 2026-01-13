@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Image, Calendar } from "lucide-react";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 interface EventFlyer {
   id: string;
@@ -58,18 +59,18 @@ const EventFlyers = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container px-4">
-        <div className="text-center mb-16">
+        <ScrollAnimationWrapper animation="fadeUp" className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Upcoming Events
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Check out our latest event flyers and photo galleries
           </p>
-        </div>
+        </ScrollAnimationWrapper>
 
         {/* Flyers Grid */}
         {flyers.length > 0 && (
-          <div className="mb-12">
+          <ScrollAnimationWrapper animation="fadeUp" delay={100} className="mb-12">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Image className="w-6 h-6 text-primary" />
               Event Flyers
@@ -105,7 +106,7 @@ const EventFlyers = () => {
                 </Card>
               ))}
             </div>
-          </div>
+          </ScrollAnimationWrapper>
         )}
 
         {/* Lightbox for selected flyer */}
@@ -142,7 +143,7 @@ const EventFlyers = () => {
 
         {/* Social Links for Event Photos */}
         {socialLinks.length > 0 && (
-          <div>
+          <ScrollAnimationWrapper animation="fadeUp" delay={200}>
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <ExternalLink className="w-6 h-6 text-primary" />
               Event Photo Galleries
@@ -170,7 +171,7 @@ const EventFlyers = () => {
                 </a>
               ))}
             </div>
-          </div>
+          </ScrollAnimationWrapper>
         )}
       </div>
     </section>

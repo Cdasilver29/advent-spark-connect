@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Heart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 interface Testimonial {
   id: string;
@@ -94,11 +95,12 @@ const Testimonials = () => {
         </div>
 
         {/* Carousel Container */}
-        <div 
-          className="relative max-w-4xl mx-auto"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
+        <ScrollAnimationWrapper animation="scaleUp" delay={200}>
+          <div 
+            className="relative max-w-4xl mx-auto"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
           {/* Navigation Buttons */}
           {testimonials.length > 1 && (
             <>
@@ -188,15 +190,16 @@ const Testimonials = () => {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </ScrollAnimationWrapper>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <ScrollAnimationWrapper animation="fadeUp" delay={300} className="text-center mt-12">
           <p className="text-lg text-muted-foreground italic">
             "Be completely humble and gentle; be patient, bearing with one another in love."
           </p>
           <p className="text-sm text-primary font-medium mt-2">— Ephesians 4:2</p>
-        </div>
+        </ScrollAnimationWrapper>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, FileText, Clock, MapPin, Calendar, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 interface EventDetailsData {
   event_date: string;
@@ -218,7 +219,7 @@ May God bless your connections!
   return (
     <section id="program" className="py-20 bg-background">
       <div className="container px-4">
-        <div className="text-center mb-12">
+        <ScrollAnimationWrapper animation="fadeUp" className="text-center mb-12">
           <Badge variant="outline" className="mb-4 text-primary border-primary">
             Event Agenda
           </Badge>
@@ -228,11 +229,12 @@ May God bless your connections!
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Save the complete event agenda to your phone or print it for reference
           </p>
-        </div>
+        </ScrollAnimationWrapper>
 
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Program Preview Card */}
-          <Card className="border-none shadow-strong overflow-hidden">
+          <ScrollAnimationWrapper animation="fadeRight" delay={100}>
+            <Card className="border-none shadow-strong overflow-hidden">
             <CardHeader className="bg-gradient-hero text-white">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-6 h-6" />
@@ -274,11 +276,13 @@ May God bless your connections!
                   <li>• Adventist values statement</li>
                 </ul>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </ScrollAnimationWrapper>
 
           {/* Download Actions Card */}
-          <Card className="border-none shadow-strong">
+          <ScrollAnimationWrapper animation="fadeLeft" delay={200}>
+            <Card className="border-none shadow-strong">
             <CardHeader>
               <CardTitle>Get Your Copy</CardTitle>
             </CardHeader>
@@ -319,7 +323,8 @@ May God bless your connections!
                 The program file can be opened on any device and printed at home or office
               </p>
             </CardContent>
-          </Card>
+            </Card>
+          </ScrollAnimationWrapper>
         </div>
       </div>
     </section>

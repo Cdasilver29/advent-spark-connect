@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Info, Heart } from "lucide-react";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 interface EventDetailsData {
   event_date: string;
@@ -75,32 +76,37 @@ const EventDetails = () => {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
           {details.map((detail, index) => (
-            <Card 
+            <ScrollAnimationWrapper 
               key={index}
-              className="border-none shadow-soft hover:shadow-medium hover:-translate-y-2 transition-all duration-300 text-center animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'backwards' }}
+              animation="fadeUp" 
+              delay={index * 100}
             >
-              <CardContent className="pt-8 pb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <detail.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-                  {detail.label}
-                </h3>
-                <p className="text-2xl font-bold text-foreground mb-1">
-                  {detail.value}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {detail.description}
-                </p>
-              </CardContent>
-            </Card>
+              <Card 
+                className="border-none shadow-soft hover:shadow-medium hover:-translate-y-2 transition-all duration-300 text-center h-full"
+              >
+                <CardContent className="pt-8 pb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <detail.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+                    {detail.label}
+                  </h3>
+                  <p className="text-2xl font-bold text-foreground mb-1">
+                    {detail.value}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {detail.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </ScrollAnimationWrapper>
           ))}
         </div>
 
-        <Card className="max-w-4xl mx-auto bg-muted/50 border-primary/20">
-          <CardContent className="p-8">
-            <h3 className="text-2xl font-bold text-center mb-6">What to Expect</h3>
+        <ScrollAnimationWrapper animation="scaleUp" delay={200}>
+          <Card className="max-w-4xl mx-auto bg-muted/50 border-primary/20">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-center mb-6">What to Expect</h3>
             <ul className="space-y-4 text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">1</span>
@@ -139,11 +145,13 @@ const EventDetails = () => {
                 <span><strong className="text-foreground">Match Exchange (6:45 PM):</strong> Submit your connection preferences and receive contact info for mutual matches before departure</span>
               </li>
             </ul>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </ScrollAnimationWrapper>
 
         {/* Special Note for Matched Couples */}
-        <Card className="max-w-4xl mx-auto mt-8 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border-secondary/30">
+        <ScrollAnimationWrapper animation="fadeUp" delay={300}>
+          <Card className="max-w-4xl mx-auto mt-8 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border-secondary/30">
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-4">
               <Heart className="w-8 h-8 text-secondary" fill="currentColor" />
@@ -158,8 +166,9 @@ const EventDetails = () => {
             <p className="mt-4 text-sm text-secondary font-semibold italic">
               "He who finds a wife finds a good thing and obtains favor from the Lord" — Proverbs 18:22
             </p>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </ScrollAnimationWrapper>
       </div>
     </section>
   );
