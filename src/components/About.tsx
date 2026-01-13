@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, Church, Gift } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -9,6 +9,11 @@ import weddingSponsorshipImg from "@/assets/wedding-sponsorship.jpg";
 
 const About = () => {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const features = [
     {
@@ -74,9 +79,13 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="py-20 bg-gradient-subtle">
+    <section id="about" className="py-20 bg-gradient-subtle overflow-hidden">
       <div className="container px-4">
-        <div className="text-center mb-16">
+        <div 
+          className={`text-center mb-16 transition-all duration-700 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             About Singles Spark
           </h2>
@@ -90,27 +99,31 @@ const About = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="border-none shadow-soft hover:shadow-medium transition-all cursor-pointer overflow-hidden group"
+              className={`border-none shadow-soft hover:shadow-strong transition-all duration-500 cursor-pointer overflow-hidden group transform hover:-translate-y-2 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: `${index * 100 + 200}ms` }}
               onClick={() => setSelectedFeature(index)}
             >
-              <div className="relative h-40 overflow-hidden">
+              <div className="relative h-48 overflow-hidden rounded-t-lg">
                 <img 
                   src={feature.image} 
                   alt={feature.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/90 backdrop-blur-sm">
-                    <feature.icon className="w-5 h-5 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
+                <div className="absolute bottom-4 left-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary shadow-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                    <feature.icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
               </div>
-              <CardContent className="pt-4 text-center">
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <CardContent className="pt-5 text-center">
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm mb-3">{feature.description}</p>
-                <span className="text-primary text-sm font-medium hover:underline">
-                  Learn more →
+                <span className="text-primary text-sm font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                  Learn more 
+                  <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </span>
               </CardContent>
             </Card>
@@ -119,7 +132,7 @@ const About = () => {
 
         {/* Dialog for expanded content */}
         <Dialog open={selectedFeature !== null} onOpenChange={() => setSelectedFeature(null)}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in">
             {selectedFeature !== null && (
               <>
                 <DialogHeader>
@@ -132,7 +145,11 @@ const About = () => {
                     const [title, ...rest] = item.split(": ");
                     const content = rest.join(": ");
                     return (
-                      <div key={idx} className="space-y-2">
+                      <div 
+                        key={idx} 
+                        className="space-y-2 animate-fade-in"
+                        style={{ animationDelay: `${idx * 100}ms` }}
+                      >
                         <h4 className="font-semibold text-foreground">
                           {title.replace(/\*\*/g, "")}
                         </h4>
@@ -148,17 +165,24 @@ const About = () => {
           </DialogContent>
         </Dialog>
 
-        <Card className="bg-gradient-hero text-white border-none shadow-medium">
-          <CardContent className="p-8 md:p-12">
-            <div className="max-w-3xl mx-auto text-center">
+        <Card 
+          className={`bg-gradient-hero text-white border-none shadow-medium overflow-hidden transition-all duration-700 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+          style={{ transitionDelay: '600ms' }}
+        >
+          <CardContent className="p-8 md:p-12 relative">
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-3xl" />
+            <div className="max-w-3xl mx-auto text-center relative z-10">
               <h3 className="text-3xl font-bold mb-4">Our Mission</h3>
-              <p className="text-lg leading-relaxed mb-6">
+              <p className="text-lg leading-relaxed mb-6 text-white/90">
                 Singles Spark exists to create a safe, faith-filled space where young Adventist 
                 adults can meet, connect, and potentially find their life partner. We believe in the importance 
                 of being equally yoked and are committed to fostering relationships that honor God and build 
                 strong Adventist families.
               </p>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold text-secondary">
                 Join us for an unforgettable evening of connection, fun, and possibility!
               </p>
             </div>
