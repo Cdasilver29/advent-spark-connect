@@ -20,8 +20,10 @@ const Tickets = () => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SelectedTicket | null>(null);
   const [inventory, setInventory] = useState<TicketInventory[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    setIsVisible(true);
     const fetchInventory = async () => {
       const { data } = await supabase
         .from("ticket_inventory")
@@ -117,16 +119,20 @@ const Tickets = () => {
   ];
 
   return (
-    <section id="tickets" className="py-20 bg-background">
+    <section id="tickets" className="py-20 bg-background overflow-hidden">
       <div className="container px-4">
-        <div className="text-center mb-16">
+        <div 
+          className={`text-center mb-16 transition-all duration-700 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Get Your Tickets
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Choose your ticket tier and secure your spot for this life-changing event
           </p>
-          <div className="inline-flex items-center gap-2 bg-secondary/20 text-secondary-foreground px-6 py-3 rounded-full">
+          <div className="inline-flex items-center gap-2 bg-secondary/20 text-secondary-foreground px-6 py-3 rounded-full animate-pulse">
             <Sparkles className="w-5 h-5" />
             <span className="font-semibold">Wedding sponsorship for matched couples!</span>
           </div>
@@ -140,15 +146,18 @@ const Tickets = () => {
             return (
               <Card 
                 key={index}
-                className={`relative border-2 transition-all hover:shadow-strong ${
+                className={`relative border-2 transition-all duration-500 transform hover:-translate-y-2 ${
                   tier.popular 
                     ? 'border-secondary scale-105 shadow-medium' 
                     : 'border-border hover:border-primary/50'
-                } ${soldOut ? 'opacity-60' : ''}`}
+                } ${soldOut ? 'opacity-60' : ''} ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+                }`}
+                style={{ transitionDelay: `${index * 100 + 200}ms` }}
               >
                 {tier.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-gradient-gold text-foreground px-6 py-1.5 rounded-full text-sm font-bold shadow-medium">
+                    <span className="bg-gradient-gold text-foreground px-6 py-1.5 rounded-full text-sm font-bold shadow-medium animate-pulse">
                       Most Popular
                     </span>
                   </div>
@@ -166,7 +175,7 @@ const Tickets = () => {
                   <CardTitle className="text-xl mb-2">{tier.name}</CardTitle>
                   <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
                   {remaining !== null && !soldOut && (
-                    <p className="text-xs text-primary font-semibold mb-2">
+                    <p className="text-xs text-primary font-semibold mb-2 animate-pulse">
                       Only {remaining} left!
                     </p>
                   )}
@@ -183,7 +192,10 @@ const Tickets = () => {
                 <CardContent className="space-y-6">
                   <ul className="space-y-3">
                     {tier.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-3">
+                      <li 
+                        key={featureIndex} 
+                        className="flex items-start gap-3 hover:translate-x-1 transition-transform duration-200"
+                      >
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-muted-foreground">{feature}</span>
                       </li>
@@ -193,12 +205,12 @@ const Tickets = () => {
                   <Button 
                     onClick={() => handlePurchase(tier.name, parsePrice(tier.price))}
                     disabled={soldOut}
-                    className={`w-full ${
+                    className={`w-full transition-all duration-300 ${
                       soldOut
                         ? 'bg-muted text-muted-foreground cursor-not-allowed'
                         : tier.popular 
-                          ? 'bg-gradient-gold hover:opacity-90 text-foreground' 
-                          : 'bg-primary hover:bg-primary-dark'
+                          ? 'bg-gradient-gold hover:opacity-90 text-foreground hover:scale-105' 
+                          : 'bg-primary hover:bg-primary-dark hover:scale-105'
                     } font-semibold py-6`}
                   >
                     {soldOut ? 'Sold Out' : 'Purchase Ticket'}
@@ -209,7 +221,11 @@ const Tickets = () => {
           })}
         </div>
 
-        <div className="mt-12 text-center">
+        <div 
+          className={`mt-12 text-center transition-all duration-700 delay-500 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <p className="text-muted-foreground mb-4">
             Payment via M-PESA • Instant confirmation • Registration code sent to email
           </p>
