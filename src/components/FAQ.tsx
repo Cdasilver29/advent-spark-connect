@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 interface FAQ {
   id: string;
@@ -89,10 +90,11 @@ const FAQ = () => {
 
         <div className="max-w-3xl mx-auto">
           {Object.entries(groupedFaqs).map(([category, categoryFaqs], categoryIndex) => (
-            <div 
+            <ScrollAnimationWrapper
               key={category} 
-              className="mb-8 animate-slide-up"
-              style={{ animationDelay: `${categoryIndex * 0.15}s`, animationFillMode: 'backwards' }}
+              animation="fadeUp"
+              delay={categoryIndex * 150}
+              className="mb-8"
             >
               <h3 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -117,7 +119,7 @@ const FAQ = () => {
                   </AccordionItem>
                 ))}
               </Accordion>
-            </div>
+            </ScrollAnimationWrapper>
           ))}
         </div>
 
