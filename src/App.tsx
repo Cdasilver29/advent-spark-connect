@@ -12,6 +12,7 @@ import ProgramPage from "./pages/ProgramPage";
 import Auth from "./pages/Auth";
 import Manager from "./pages/Manager";
 import NotFound from "./pages/NotFound";
+import FloatingActionButton from "./components/FloatingActionButton";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <FloatingActionButton />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<AboutPage />} />

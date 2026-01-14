@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Info, Heart } from "lucide-react";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import { useParallax } from "@/hooks/useParallax";
 
 interface EventDetailsData {
   event_date: string;
@@ -62,9 +63,20 @@ const EventDetails = () => {
     },
   ];
 
+  const { offsetY } = useParallax(0.15);
+
   return (
-    <section className="py-20 bg-gradient-subtle">
-      <div className="container px-4">
+    <section className="py-20 bg-gradient-subtle relative overflow-hidden">
+      {/* Parallax decorative elements */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{ transform: `translateY(${offsetY * 0.1}px)` }}
+      >
+        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Event Details
