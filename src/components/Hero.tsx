@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParallax } from "@/hooks/useParallax";
 import heroImage from "@/assets/hero-event.jpg";
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { offsetY } = useParallax(0.3);
 
   useEffect(() => {
     setIsVisible(true);
@@ -13,13 +15,14 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
+      {/* Background Image with Parallax */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 will-change-transform"
         style={{
           backgroundImage: `url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          transform: `translateY(${offsetY * 0.4}px) scale(1.1)`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/85 to-primary-dark/90" />
