@@ -2,10 +2,19 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, Church, Gift } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ImageGallery from "@/components/ImageGallery";
 import faithCenteredImg from "@/assets/faith-centered.jpg";
 import intentionalConnectionsImg from "@/assets/intentional-connections.jpg";
 import adventistCommunityImg from "@/assets/adventist-community.jpg";
 import weddingSponsorshipImg from "@/assets/wedding-sponsorship.jpg";
+import praiseWorshipImg from "@/assets/praise-worship.jpg";
+import fellowshipDinnerImg from "@/assets/fellowship-dinner.jpg";
+import teamBuildingImg from "@/assets/team-building.jpg";
+import boardGamesImg from "@/assets/board-games.jpg";
+import visionBoardImg from "@/assets/vision-board.jpg";
+import sabbathSelfieImg from "@/assets/sabbath-selfie.jpg";
+import faithGamesImg from "@/assets/faith-games.jpg";
+import speedDatingImg from "@/assets/speed-dating.jpg";
 
 const About = () => {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
@@ -76,6 +85,18 @@ const About = () => {
         ],
       },
     },
+  ];
+
+  // Gallery images for the lightbox
+  const galleryImages = [
+    { src: praiseWorshipImg, alt: "Praise and worship session", title: "Praise & Worship" },
+    { src: fellowshipDinnerImg, alt: "Fellowship dinner", title: "Fellowship Dinner" },
+    { src: teamBuildingImg, alt: "Team building activities", title: "Team Building" },
+    { src: boardGamesImg, alt: "Board games session", title: "Board Games" },
+    { src: visionBoardImg, alt: "Vision board activity", title: "Vision Board Sharing" },
+    { src: sabbathSelfieImg, alt: "Sabbath selfie icebreaker", title: "Sabbath Selfie" },
+    { src: faithGamesImg, alt: "Faith and fellowship games", title: "Faith Games" },
+    { src: speedDatingImg, alt: "Speed dating session", title: "Speed Networking" },
   ];
 
   return (
@@ -164,6 +185,13 @@ const About = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Image Gallery Section */}
+        <ImageGallery
+          images={galleryImages}
+          title="Event Photo Gallery"
+          subtitle="Glimpses from our faith-filled gatherings and meaningful connections"
+        />
 
         <Card 
           className={`bg-gradient-hero text-white border-none shadow-medium overflow-hidden transition-all duration-700 ${
