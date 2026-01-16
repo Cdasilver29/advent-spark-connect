@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, type TouchEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
@@ -19,7 +19,7 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
-  
+
   // Touch gesture state
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -48,31 +48,31 @@ const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
   }, [selectedIndex, images.length]);
 
   // Touch gesture handlers
-  const onTouchStart = (e: React.TouchEvent) => {
+  const onTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     if (isZoomed) return;
     touchEndX.current = null;
-    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartX.current = e.targetTouches[0]?.clientX ?? null;
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
+  const onTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     if (isZoomed) return;
-    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndX.current = e.targetTouches[0]?.clientX ?? null;
   };
 
   const onTouchEnd = () => {
     if (isZoomed) return;
-    if (!touchStartX.current || !touchEndX.current) return;
-    
+    if (touchStartX.current === null || touchEndX.current === null) return;
+
     const distance = touchStartX.current - touchEndX.current;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    
+
     if (isLeftSwipe) {
       goToNext();
     } else if (isRightSwipe) {
       goToPrevious();
     }
-    
+
     touchStartX.current = null;
     touchEndX.current = null;
   };
