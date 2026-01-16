@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
@@ -19,6 +19,11 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  
+  // Touch gesture state
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 50;
 
   const openLightbox = (index: number) => {
     setSelectedIndex(index);
@@ -41,6 +46,36 @@ const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
     setSelectedIndex(selectedIndex === images.length - 1 ? 0 : selectedIndex + 1);
     setIsZoomed(false);
   }, [selectedIndex, images.length]);
+
+  // Touch gesture handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (isZoomed) return;
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (isZoomed) return;
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (isZoomed) return;
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      goToNext();
+    } else if (isRightSwipe) {
+      goToPrevious();
+    }
+    
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -125,7 +160,12 @@ const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
       <Dialog open={selectedIndex !== null} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-background/95 backdrop-blur-xl border-none overflow-hidden">
           {selectedIndex !== null && (
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div 
+              className="relative w-full h-full flex items-center justify-center touch-pan-y"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
               {/* Close button */}
               <Button
                 variant="ghost"
