@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package, Users, QrCode, Mail, Send } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package, Users, QrCode, Mail, Send, Palette } from "lucide-react";
 import { activityMaterials } from "@/components/Activities";
+import ActivitiesManager from "@/components/ActivitiesManager";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import QRScanner from "@/components/QRScanner";
 import CheckInStatistics from "@/components/CheckInStatistics";
@@ -472,6 +473,7 @@ const Manager = () => {
           <TabsList className="flex flex-wrap gap-1 h-auto p-1">
             <TabsTrigger value="event">Event</TabsTrigger>
             <TabsTrigger value="checkin">Check-In</TabsTrigger>
+            <TabsTrigger value="activities">Activities</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="materials">Materials</TabsTrigger>
@@ -587,6 +589,19 @@ const Manager = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Activities Tab */}
+          <TabsContent value="activities">
+            <Card>
+              <CardContent className="p-6">
+                {isManager ? (
+                  <ActivitiesManager />
+                ) : (
+                  <p className="text-muted-foreground">You need manager permissions to edit activities.</p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Flyers Tab */}
