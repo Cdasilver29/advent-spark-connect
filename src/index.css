@@ -125,5 +125,17 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Subtle background pattern for modern feel */
+    background-image: 
+      radial-gradient(ellipse at 20% 30%, hsl(210 80% 42% / 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, hsl(45 95% 55% / 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Image loading optimization */
+@layer utilities {
+  .image-loading {
+    @apply bg-muted animate-pulse;
   }
 }

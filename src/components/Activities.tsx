@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, BookOpen } from "lucide-react";
+import { Clock, Users, BookOpen, Heart, MessageCircle, Music, Utensils, Star, Sparkles, Trophy } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Fallback static images for activities without uploaded images
 import sabbathSelfieImage from "@/assets/sabbath-selfie.jpg";
 import boardGamesImage from "@/assets/board-games.jpg";
 import characterChallengeImage from "@/assets/character-challenge.jpg";
@@ -12,15 +16,53 @@ import roundtableImage from "@/assets/roundtable-discussion.jpg";
 import teamBuildingImage from "@/assets/team-building.jpg";
 
 interface Activity {
+  id: string;
   title: string;
-  goal: string;
   description: string;
-  conversationPrompt?: string;
-  instructions?: string[];
-  duration: string;
-  groupSize: string;
-  image: string;
+  image_url: string;
+  icon: string;
+  display_order: number;
+  is_active: boolean;
 }
+
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Users,
+  Heart,
+  MessageCircle,
+  Music,
+  Utensils,
+  BookOpen,
+  Star,
+  Sparkles,
+  Clock,
+  Trophy,
+};
+
+// Fallback images by title keyword
+const fallbackImages: Record<string, string> = {
+  "sabbath": sabbathSelfieImage,
+  "board": boardGamesImage,
+  "character": characterChallengeImage,
+  "vision": visionBoardImage,
+  "faith": faithGamesImage,
+  "praise": praiseWorshipImage,
+  "worship": praiseWorshipImage,
+  "network": roundtableImage,
+  "speed": roundtableImage,
+  "prayer": teamBuildingImage,
+  "team": teamBuildingImage,
+};
+
+const getFallbackImage = (title: string): string => {
+  const lowerTitle = title.toLowerCase();
+  for (const [keyword, image] of Object.entries(fallbackImages)) {
+    if (lowerTitle.includes(keyword)) {
+      return image;
+    }
+  }
+  return sabbathSelfieImage;
+};
 
 // Materials data exported for Manager dashboard
 export const activityMaterials: Record<string, string[]> = {
@@ -81,123 +123,86 @@ export const activityMaterials: Record<string, string[]> = {
   ],
 };
 
+// Optimized Image component with blur placeholder
+const OptimizedImage = ({ 
+  src, 
+  alt, 
+  className 
+}: { 
+  src: string; 
+  alt: string; 
+  className?: string;
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(src);
+
+  useEffect(() => {
+    // Reset state when src changes
+    setIsLoaded(false);
+    setImageSrc(src);
+  }, [src]);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Blur placeholder */}
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse" />
+      )}
+      <img
+        src={imageSrc}
+        alt={alt}
+        className={`${className} transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={() => {
+          // Use fallback on error
+          const fallback = getFallbackImage(alt);
+          if (imageSrc !== fallback) {
+            setImageSrc(fallback);
+          }
+        }}
+      />
+    </div>
+  );
+};
+
 const Activities = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true);
+    fetchActivities();
   }, []);
 
-  const activities: Activity[] = [
-    {
-      title: "The Sabbath Selfie Icebreaker",
-      goal: "Meet 3 new people instantly and share a favorite Sabbath memory",
-      description: "A warm, faith-centered way to break the ice and celebrate our shared heritage of Sabbath keeping.",
-      conversationPrompt: "Share your most memorable Sabbath experience - whether it was a special sunset vespers, a nature walk, a potluck blessing, or a moment when God spoke to your heart during the Sabbath hours.",
-      duration: "20 minutes",
-      groupSize: "Groups of 3-4",
-      image: sabbathSelfieImage,
-    },
-    {
-      title: "Board Games & Purposeful Conversation",
-      goal: "Structured discussion on character and alignment through engaging games",
-      description: "Enjoy wholesome board games while engaging in meaningful conversations that reveal character, values, and communication styles.",
-      instructions: [
-        "Rotate tables every 15 minutes for variety",
-        "Each game includes character-revealing discussion questions",
-        "Pictionary uses Bible stories and SDA heritage themes",
-        "Jenga blocks have conversation starters written on them",
-        "Focus on listening, respect, and gracious competition"
-      ],
-      duration: "45 minutes",
-      groupSize: "4-6 per table",
-      image: boardGamesImage,
-    },
-    {
-      title: "Character & Values Challenge",
-      goal: "Team problem-solving to reveal teamwork skills and godly character",
-      description: "Engage in collaborative challenges that showcase leadership, patience, communication, and Christ-like character under pressure.",
-      instructions: [
-        "Teams receive a scenario requiring biblical wisdom",
-        "Example: 'Your church has limited funds - prioritize these 5 ministries and explain why'",
-        "Observe how members lead, listen, and resolve differences",
-        "Debrief focuses on what each person learned about themselves",
-        "Judges look for humility, collaboration, and biblical reasoning"
-      ],
-      duration: "30 minutes",
-      groupSize: "Teams of 5-6",
-      image: characterChallengeImage,
-    },
-    {
-      title: "My Mission Field Vision Board",
-      goal: "Share personal ministry calling and life goals with potential partners",
-      description: "Create or present vision boards that reveal your calling, ministry aspirations, and how you see God using you in His work.",
-      conversationPrompt: "Share your 'My Mission Field' vision: Where has God placed you to serve? What ministry burns in your heart? How do you envision your future family serving the Lord together?",
-      duration: "35 minutes",
-      groupSize: "Individual + sharing circles of 6",
-      image: visionBoardImage,
-    },
-    {
-      title: "Faith & Fellowship Games",
-      goal: "Lighthearted, low-pressure fun reinforcing shared Adventist heritage",
-      description: "Enjoy Bible trivia, SDA history challenges, and heritage games that celebrate our faith while building connections through laughter.",
-      instructions: [
-        "Bible Trivia Relay: Teams race to answer questions",
-        "SDA Heritage Bingo: Mark off pioneers, events, institutions",
-        "Hymn Humming Challenge: Guess the hymn from humming",
-        "'Name That Prophet' charades",
-        "Winners receive small, meaningful prizes (devotional books, bookmarks)"
-      ],
-      duration: "40 minutes",
-      groupSize: "Teams of 4-5",
-      image: faithGamesImage,
-    },
-    {
-      title: "Praise & Testimony Hour",
-      goal: "Spiritual uplift through sacred music and personal testimonies",
-      description: "End the event with a powerful time of praise, worship, and testimony sharing that draws hearts closer to God and each other.",
-      instructions: [
-        "Solo song performances (pre-registered)",
-        "Group hymn singing (classics from the hymnal)",
-        "New connections duet: Newly met pairs sing together",
-        "3-minute testimony slots for volunteers",
-        "Close with prayer and commitment song"
-      ],
-      duration: "45 minutes",
-      groupSize: "Full group",
-      image: praiseWorshipImage,
-    },
-    {
-      title: "Purposeful Speed Networking",
-      goal: "Deep, intentional one-on-one conversations to discover compatibility",
-      description: "Structured 5-minute conversations with guided questions that go beyond surface-level to explore faith, values, and life vision.",
-      instructions: [
-        "Begin each round with a moment of silent prayer",
-        "Use guided question cards (not casual small talk)",
-        "Questions progress: Faith journey → Ministry involvement → Life goals → Family vision",
-        "Note cards for recording impressions and prayer requests",
-        "Bell signals rotation every 5 minutes"
-      ],
-      duration: "50 minutes (10 rounds)",
-      groupSize: "One-on-one pairs",
-      image: roundtableImage,
-    },
-    {
-      title: "Prayer Partner Connection",
-      goal: "Form meaningful prayer partnerships for continued spiritual support",
-      description: "A sacred time to connect with a prayer partner, share prayer requests, and commit to lifting each other up in prayer beyond the event.",
-      instructions: [
-        "Prayerfully select a prayer partner from new connections",
-        "Share 3 specific prayer requests with each other",
-        "Exchange contact information for ongoing prayer support",
-        "Pray together for each other's requests and future",
-        "Sign a prayer partnership commitment card"
-      ],
-      duration: "25 minutes",
-      groupSize: "Pairs",
-      image: teamBuildingImage,
-    },
-  ];
+  const fetchActivities = async () => {
+    const { data, error } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching activities:", error);
+    } else if (data) {
+      setActivities(data as Activity[]);
+    }
+    setIsLoading(false);
+  };
+
+  const getImageSrc = (activity: Activity): string => {
+    if (activity.image_url && activity.image_url !== "/placeholder.svg") {
+      return activity.image_url;
+    }
+    return getFallbackImage(activity.title);
+  };
+
+  const getIcon = (iconName: string) => {
+    const IconComponent = iconMap[iconName] || Users;
+    return <IconComponent className="w-5 h-5" />;
+  };
 
   return (
     <section id="activities" className="py-20 bg-background overflow-hidden">
@@ -219,74 +224,62 @@ const Activities = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {activities.map((activity, index) => (
-            <Card 
-              key={index} 
-              className={`overflow-hidden border-none shadow-soft hover:shadow-strong transition-all duration-500 group transform hover:-translate-y-2 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              <div className="relative h-56 overflow-hidden">
-                <img 
-                  src={activity.image} 
-                  alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
-                <div className="absolute bottom-4 left-6 right-6">
-                  <h3 className="text-2xl font-bold text-white mb-1 group-hover:translate-x-2 transition-transform duration-300">
-                    {activity.title}
-                  </h3>
-                  <p className="text-white/90 text-sm">{activity.goal}</p>
-                </div>
-              </div>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-muted-foreground leading-relaxed">
-                  {activity.description}
-                </p>
-                
-                {activity.conversationPrompt && (
-                  <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg transform transition-all duration-300 hover:translate-x-1">
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-foreground text-sm mb-1">Conversation Prompt:</p>
-                        <p className="text-sm text-muted-foreground italic">"{activity.conversationPrompt}"</p>
-                      </div>
+        {isLoading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="h-48 w-full" />
+                <CardContent className="p-6 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {activities.map((activity, index) => (
+              <Card 
+                key={activity.id} 
+                className={`overflow-hidden border-none shadow-soft hover:shadow-strong transition-all duration-500 group transform hover:-translate-y-2 ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="relative h-48 md:h-56 overflow-hidden">
+                  <OptimizedImage
+                    src={getImageSrc(activity)}
+                    alt={activity.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white/80">
+                        {getIcon(activity.icon)}
+                      </span>
                     </div>
-                  </div>
-                )}
-                
-                {activity.instructions && (
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="font-semibold text-foreground text-sm mb-2">Activity Instructions:</p>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      {activity.instructions.map((instruction, i) => (
-                        <li key={i} className="flex items-start gap-2 hover:translate-x-1 transition-transform duration-200">
-                          <span className="text-primary">•</span>
-                          {instruction}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span>{activity.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span>{activity.groupSize}</span>
+                    <h3 className="text-lg md:text-xl font-bold text-white group-hover:translate-x-2 transition-transform duration-300 line-clamp-2">
+                      {activity.title}
+                    </h3>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="p-4 md:p-6">
+                  <p className="text-muted-foreground leading-relaxed text-sm md:text-base line-clamp-3">
+                    {activity.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && activities.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Activities coming soon...</p>
+          </div>
+        )}
 
         <div 
           className={`mt-16 max-w-4xl mx-auto transition-all duration-700 delay-500 ${
@@ -294,17 +287,17 @@ const Activities = () => {
           }`}
         >
           <Card className="bg-gradient-hero text-white overflow-hidden">
-            <CardContent className="p-8 text-center relative">
+            <CardContent className="p-6 md:p-8 text-center relative">
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
               <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-secondary/10 rounded-full blur-2xl" />
-              <h3 className="text-2xl font-bold mb-4 relative z-10">Our Commitment to Adventist Values</h3>
-              <p className="text-white/90 leading-relaxed relative z-10">
+              <h3 className="text-xl md:text-2xl font-bold mb-4 relative z-10">Our Commitment to Adventist Values</h3>
+              <p className="text-white/90 leading-relaxed relative z-10 text-sm md:text-base">
                 Every activity is designed to honor Christ, uphold Adventist principles, and create 
                 an atmosphere where singles can connect authentically. We intentionally avoid secular 
                 entertainment, inappropriate music, and activities that don't align with our faith. 
                 Our goal is purposeful fellowship that could lead to equally yoked partnerships.
               </p>
-              <p className="mt-4 font-semibold text-accent relative z-10">
+              <p className="mt-4 font-semibold text-accent relative z-10 text-sm md:text-base">
                 "Be ye not unequally yoked together with unbelievers" — 2 Corinthians 6:14
               </p>
             </CardContent>

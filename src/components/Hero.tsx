@@ -25,7 +25,7 @@ const Hero = () => {
           transform: `translateY(${offsetY * 0.4}px) scale(1.1)`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/85 to-primary-dark/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/70 to-primary-dark/75" />
       </div>
 
       {/* Animated Background Elements */}
