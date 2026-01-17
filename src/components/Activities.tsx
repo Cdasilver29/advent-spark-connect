@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, BookOpen, Heart, MessageCircle, Music, Utensils, Star, Sparkles, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import OptimizedImage from "@/components/OptimizedImage";
 
 // Fallback static images for activities without uploaded images
 import sabbathSelfieImage from "@/assets/sabbath-selfie.jpg";
@@ -123,49 +124,6 @@ export const activityMaterials: Record<string, string[]> = {
   ],
 };
 
-// Optimized Image component with blur placeholder
-const OptimizedImage = ({ 
-  src, 
-  alt, 
-  className 
-}: { 
-  src: string; 
-  alt: string; 
-  className?: string;
-}) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [imageSrc, setImageSrc] = useState(src);
-
-  useEffect(() => {
-    // Reset state when src changes
-    setIsLoaded(false);
-    setImageSrc(src);
-  }, [src]);
-
-  return (
-    <div className="relative w-full h-full overflow-hidden">
-      {/* Blur placeholder */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse" />
-      )}
-      <img
-        src={imageSrc}
-        alt={alt}
-        className={`${className} transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setIsLoaded(true)}
-        onError={() => {
-          // Use fallback on error
-          const fallback = getFallbackImage(alt);
-          if (imageSrc !== fallback) {
-            setImageSrc(fallback);
-          }
-        }}
-      />
-    </div>
-  );
-};
 
 const Activities = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -251,7 +209,8 @@ const Activities = () => {
                   <OptimizedImage
                     src={getImageSrc(activity)}
                     alt={activity.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    fallbackSrc={getFallbackImage(activity.title)}
+                    className="group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">

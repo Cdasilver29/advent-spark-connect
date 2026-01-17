@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useParallax } from "@/hooks/useParallax";
+import { preloadCriticalImages } from "@/hooks/useImagePreload";
 import heroImage from "@/assets/hero-event.jpg";
 
 const Hero = () => {
@@ -11,6 +12,8 @@ const Hero = () => {
 
   useEffect(() => {
     setIsVisible(true);
+    // Preload hero image for instant display
+    preloadCriticalImages([heroImage]);
   }, []);
 
   return (

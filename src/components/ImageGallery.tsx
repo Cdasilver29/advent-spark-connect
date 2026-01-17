@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface GalleryImage {
   src: string;
@@ -128,11 +129,11 @@ const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
               className="group relative aspect-square overflow-hidden rounded-xl cursor-pointer shadow-soft hover:shadow-strong transition-all duration-300"
               onClick={() => openLightbox(index)}
             >
-              <img
+              <OptimizedImage
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
+                aspectRatio="square"
+                className="group-hover:scale-110 transition-transform duration-500"
               />
               
               {/* Hover Overlay */}
