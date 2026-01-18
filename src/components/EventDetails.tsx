@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Info } from "lucide-react";
+import { Calendar, Clock, MapPin, Info, Heart } from "lucide-react";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import { useParallax } from "@/hooks/useParallax";
 
 interface EventDetailsData {
   event_date: string;
@@ -61,10 +63,21 @@ const EventDetails = () => {
     },
   ];
 
+  const { offsetY } = useParallax(0.15);
+
   return (
-    <section className="py-20 bg-gradient-subtle">
-      <div className="container px-4">
-        <div className="text-center mb-16">
+    <section className="py-20 bg-gradient-subtle relative overflow-hidden">
+      {/* Parallax decorative elements */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{ transform: `translateY(${offsetY * 0.1}px)` }}
+      >
+        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container px-4 relative z-10">
+        <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Event Details
           </h2>
@@ -75,31 +88,37 @@ const EventDetails = () => {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
           {details.map((detail, index) => (
-            <Card 
+            <ScrollAnimationWrapper 
               key={index}
-              className="border-none shadow-soft hover:shadow-medium transition-all text-center"
+              animation="fadeUp" 
+              delay={index * 100}
             >
-              <CardContent className="pt-8 pb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4">
-                  <detail.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-                  {detail.label}
-                </h3>
-                <p className="text-2xl font-bold text-foreground mb-1">
-                  {detail.value}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {detail.description}
-                </p>
-              </CardContent>
-            </Card>
+              <Card 
+                className="border-none shadow-soft hover:shadow-medium hover:-translate-y-2 transition-all duration-300 text-center h-full"
+              >
+                <CardContent className="pt-8 pb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-hero mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <detail.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+                    {detail.label}
+                  </h3>
+                  <p className="text-2xl font-bold text-foreground mb-1">
+                    {detail.value}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {detail.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </ScrollAnimationWrapper>
           ))}
         </div>
 
-        <Card className="max-w-4xl mx-auto bg-muted/50 border-primary/20">
-          <CardContent className="p-8">
-            <h3 className="text-2xl font-bold text-center mb-6">What to Expect</h3>
+        <ScrollAnimationWrapper animation="scaleUp" delay={200}>
+          <Card className="max-w-4xl mx-auto bg-muted/50 border-primary/20">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-center mb-6">What to Expect</h3>
             <ul className="space-y-4 text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">1</span>
@@ -123,19 +142,45 @@ const EventDetails = () => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">6</span>
-                <span><strong className="text-foreground">Fellowship Dinner (5:00 PM):</strong> Vegetarian dinner with continued networking at assigned connection tables</span>
+                <span><strong className="text-foreground">Faith & Fellowship Games (4:45 PM):</strong> Bible trivia, SDA heritage challenges, and hymn games with fun prizes</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">7</span>
-                <span><strong className="text-foreground">Praise & Testimony Hour (6:00 PM):</strong> Solo songs, group hymns, testimonies, and closing prayer for God's blessing on new connections</span>
+                <span><strong className="text-foreground">Prayer Partner Connection (5:30 PM):</strong> Form lasting prayer partnerships with new connections for continued spiritual support</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">8</span>
+                <span><strong className="text-foreground">Praise & Testimony Hour (6:00 PM):</strong> Solo songs, group hymns, testimonies, and closing prayer for God's blessing on new connections</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex-shrink-0 mt-0.5">9</span>
                 <span><strong className="text-foreground">Match Exchange (6:45 PM):</strong> Submit your connection preferences and receive contact info for mutual matches before departure</span>
               </li>
             </ul>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </ScrollAnimationWrapper>
+
+        {/* Special Note for Matched Couples */}
+        <ScrollAnimationWrapper animation="fadeUp" delay={300}>
+          <Card className="max-w-4xl mx-auto mt-8 bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border-secondary/30">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <Heart className="w-8 h-8 text-secondary" fill="currentColor" />
+              <h3 className="text-2xl font-bold text-foreground">For Matched Couples</h3>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Couples who mutually match during the event will receive contact information for each other
+              and are encouraged to continue getting to know one another through wholesome, supervised interactions. 
+              This is part of our commitment to nurturing Christ-centered relationships 
+              that could lead to marriage. Matched couples will receive follow-up communication with guidance.
+            </p>
+            <p className="mt-4 text-sm text-secondary font-semibold italic">
+              "He who finds a wife finds a good thing and obtains favor from the Lord" — Proverbs 18:22
+            </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimationWrapper>
       </div>
     </section>
   );

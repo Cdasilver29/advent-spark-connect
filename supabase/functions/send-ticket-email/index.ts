@@ -16,6 +16,7 @@ interface TicketEmailRequest {
   mpesaReceipt: string;
   phoneNumber: string;
   transactionDate: string;
+  registrationCode: string;
 }
 
 // Generate QR code as base64 using a public API
@@ -53,10 +54,10 @@ serve(async (req) => {
       );
     }
 
-    const { email, ticketType, amount, mpesaReceipt, phoneNumber, transactionDate }: TicketEmailRequest = await req.json();
+    const { email, ticketType, amount, mpesaReceipt, phoneNumber, transactionDate, registrationCode }: TicketEmailRequest = await req.json();
 
     // Validate required fields
-    if (!email || !ticketType || !amount || !mpesaReceipt) {
+    if (!email || !ticketType || !amount || !mpesaReceipt || !registrationCode) {
       console.error("Missing required fields for email");
       return new Response(
         JSON.stringify({ success: false, error: "Missing required fields" }),
@@ -64,7 +65,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Sending ticket email to:", email);
+    console.log("Sending ticket email to:", email, "with registration code:", registrationCode);
 
     // Generate QR code with ticket information
     const ticketData = JSON.stringify({
@@ -72,6 +73,7 @@ serve(async (req) => {
       ticket: ticketType,
       phone: phoneNumber,
       date: transactionDate,
+      code: registrationCode,
     });
     const qrCodeBase64 = await generateQRCode(ticketData);
 
@@ -113,6 +115,20 @@ serve(async (req) => {
             <td style="padding: 30px 40px 20px; text-align: center;">
               <div style="display: inline-block; background-color: #dcfce7; color: #166534; padding: 8px 20px; border-radius: 50px; font-size: 14px; font-weight: 600;">
                 ✓ Payment Successful
+              </div>
+            </td>
+          </tr>
+
+          <!-- Registration Code - HIGHLIGHTED -->
+          <tr>
+            <td style="padding: 20px 40px;">
+              <div style="background: linear-gradient(135deg, #003366 0%, #002244 100%); border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="margin: 0 0 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">YOUR REGISTRATION CODE</p>
+                <p style="margin: 0; color: #FFD700; font-size: 36px; font-weight: bold; letter-spacing: 8px; font-family: monospace;">${registrationCode}</p>
+                <p style="margin: 16px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 13px;">
+                  Use this code to complete your event registration at our website.<br>
+                  You must register with the same email: <strong>${email}</strong>
+                </p>
               </div>
             </td>
           </tr>
@@ -175,17 +191,33 @@ serve(async (req) => {
               </div>
             </td>
           </tr>
+
+          <!-- Next Steps -->
+          <tr>
+            <td style="padding: 20px 40px;">
+              <div style="background-color: #eff6ff; border-radius: 12px; padding: 20px; border-left: 4px solid #003366;">
+                <h3 style="margin: 0 0 12px; color: #003366; font-size: 16px;">📋 Next Steps</h3>
+                <ol style="margin: 0; padding: 0 0 0 20px; color: #1e40af; font-size: 14px; line-height: 1.8;">
+                  <li><strong>Complete Registration:</strong> Visit our website and go to the Registration page</li>
+                  <li><strong>Enter Your Code:</strong> Use the registration code above: <strong>${registrationCode}</strong></li>
+                  <li><strong>Fill Details:</strong> Provide your church affiliation and ministry interests</li>
+                  <li><strong>Prepare for the Event:</strong> Dress code is Smart Casual, arrive 15 minutes early</li>
+                </ol>
+              </div>
+            </td>
+          </tr>
           
           <!-- Important Info -->
           <tr>
             <td style="padding: 20px 40px;">
               <div style="background-color: #fef3c7; border-radius: 12px; padding: 20px;">
-                <h3 style="margin: 0 0 12px; color: #92400e; font-size: 16px;">📋 Important Information</h3>
+                <h3 style="margin: 0 0 12px; color: #92400e; font-size: 16px;">⚠️ Important Information</h3>
                 <ul style="margin: 0; padding: 0 0 0 20px; color: #78350f; font-size: 14px; line-height: 1.6;">
+                  <li>You MUST complete registration before the event</li>
+                  <li>Registration requires this code and the same email address</li>
                   <li>Please arrive at least 15 minutes before the event starts</li>
                   <li>Bring a valid ID for verification</li>
                   <li>Screenshot or print this ticket for entry</li>
-                  <li>Dress code: Smart Casual</li>
                 </ul>
               </div>
             </td>
@@ -213,7 +245,7 @@ serve(async (req) => {
     const emailResponse = await resend.emails.send({
       from: "Adventist Singles Spark <onboarding@resend.dev>",
       to: [email],
-      subject: `🎟️ Your ${ticketType} Ticket - Adventist Singles Spark`,
+      subject: `🎟️ Your Ticket & Registration Code: ${registrationCode} - Adventist Singles Spark`,
       html: emailHtml,
     });
 

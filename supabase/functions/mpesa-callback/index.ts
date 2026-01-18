@@ -36,6 +36,16 @@ function isAllowedIP(ip: string | null): boolean {
   return isAllowed;
 }
 
+// Generate unique 6-character registration code
+function generateRegistrationCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing characters like 0, O, 1, I
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 interface MPesaCallbackItem {
   Name: string;
   Value: string | number;
@@ -150,6 +160,34 @@ serve(async (req) => {
       console.log("Payment failed or cancelled - Code:", ResultCode);
     }
 
+    // Generate unique registration code for successful payments
+    let registrationCode: string | null = null;
+    if (ResultCode === 0) {
+      // Keep trying until we get a unique code
+      let attempts = 0;
+      while (attempts < 10) {
+        const code = generateRegistrationCode();
+        const { data: existingCode } = await supabase
+          .from("payments")
+          .select("id")
+          .eq("registration_code", code)
+          .single();
+        
+        if (!existingCode) {
+          registrationCode = code;
+          break;
+        }
+        attempts++;
+      }
+      
+      if (!registrationCode) {
+        console.error("Failed to generate unique registration code after 10 attempts");
+        registrationCode = generateRegistrationCode() + Date.now().toString(36).slice(-2).toUpperCase();
+      }
+      
+      console.log("Generated registration code:", registrationCode);
+    }
+
     // Update payment record in database
     const { data: paymentData, error: updateError } = await supabase
       .from("payments")
@@ -159,6 +197,7 @@ serve(async (req) => {
         result_desc: ResultDesc,
         mpesa_receipt_number: mpesaReceiptNumber,
         transaction_date: transactionDate,
+        registration_code: registrationCode,
       })
       .eq("checkout_request_id", CheckoutRequestID)
       .select()
@@ -169,9 +208,9 @@ serve(async (req) => {
     } else {
       console.log("Payment record updated successfully");
 
-      // If payment was successful, send ticket email
-      if (ResultCode === 0 && paymentData?.email) {
-        console.log("Sending ticket email to:", paymentData.email);
+      // If payment was successful, send ticket email with registration code
+      if (ResultCode === 0 && paymentData?.email && registrationCode) {
+        console.log("Sending ticket email to:", paymentData.email, "with code:", registrationCode);
         
         if (!internalApiSecret) {
           console.error("INTERNAL_API_SECRET not configured - cannot send email securely");
@@ -194,6 +233,7 @@ serve(async (req) => {
                 mpesaReceipt: mpesaReceiptNumber,
                 phoneNumber: paymentData.phone_number,
                 transactionDate: transactionDate,
+                registrationCode: registrationCode,
               }),
             });
 
