@@ -32,10 +32,12 @@ const MAX_REQUESTS_PER_PHONE = 3;
 
 // Allowed ticket types
 const VALID_TICKET_TYPES = [
-  "Ages 21-28 (Early Bird)",
-  "Ages 21-28 (Standard)",
-  "Ages 28-40+ (Early Bird)",
-  "Ages 28-40+ (Standard)"
+  "Early Bird (Ages 21-28)",
+  "Early Bird (Ages 28-40+)",
+  "Regular (Ages 21-28)",
+  "Regular (Ages 28-40+)",
+  "VIP (Ages 21-28)",
+  "VIP (Ages 28-40+)"
 ];
 
 // Validation functions

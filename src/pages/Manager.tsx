@@ -8,12 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield, Package, Users, QrCode, Mail, Send, Palette } from "lucide-react";
-import { activityMaterials } from "@/components/Activities";
-import ActivitiesManager from "@/components/ActivitiesManager";
+import { ArrowLeft, Calendar, Clock, MapPin, Shirt, Upload, Trash2, ExternalLink, Image, Link as LinkIcon, LogOut, AlertCircle, CreditCard, Shield } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import QRScanner from "@/components/QRScanner";
-import CheckInStatistics from "@/components/CheckInStatistics";
 
 interface EventDetails {
   id: string;
@@ -68,22 +64,6 @@ interface AuditLog {
   created_at: string;
 }
 
-interface Registration {
-  id: string;
-  registration_code: string;
-  email: string;
-  full_name: string;
-  phone: string;
-  church_name: string;
-  church_district: string;
-  age_group: string;
-  ministry_interests: string[];
-  registered_at: string;
-  checked_in: boolean;
-  checked_in_at: string | null;
-  reminder_sent: boolean;
-}
-
 const Manager = () => {
   const { user, isLoading, isManager, signOut } = useAuth();
   const navigate = useNavigate();
@@ -95,13 +75,10 @@ const Manager = () => {
   const [ticketInventory, setTicketInventory] = useState<TicketInventory[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingPayments, setIsLoadingPayments] = useState(false);
   const [isLoadingAuditLogs, setIsLoadingAuditLogs] = useState(false);
-  const [isLoadingRegistrations, setIsLoadingRegistrations] = useState(false);
-  const [isSendingReminders, setIsSendingReminders] = useState(false);
   
   // Form states
   const [newFlyer, setNewFlyer] = useState({ title: "", description: "", event_date: "" });
@@ -180,27 +157,6 @@ const Manager = () => {
     }
     
     setIsLoadingAuditLogs(false);
-  };
-
-  // Fetch registrations
-  const fetchRegistrations = async () => {
-    if (!user || !isManager) return;
-    
-    setIsLoadingRegistrations(true);
-    
-    const { data: regData, error } = await supabase
-      .from("registrations")
-      .select("id, registration_code, email, full_name, phone, church_name, church_district, age_group, ministry_interests, registered_at, checked_in, checked_in_at, reminder_sent")
-      .order("registered_at", { ascending: false })
-      .limit(100);
-    
-    if (error) {
-      console.error("Error fetching registrations:", error);
-    } else if (regData) {
-      setRegistrations(regData as Registration[]);
-    }
-    
-    setIsLoadingRegistrations(false);
   };
 
   useEffect(() => {
@@ -470,18 +426,13 @@ const Manager = () => {
         )}
 
         <Tabs defaultValue="event" className="space-y-6">
-          <TabsList className="flex flex-wrap gap-1 h-auto p-1">
+          <TabsList className="grid w-full max-w-2xl grid-cols-6">
             <TabsTrigger value="event">Event</TabsTrigger>
-            <TabsTrigger value="checkin">Check-In</TabsTrigger>
-            <TabsTrigger value="activities">Activities</TabsTrigger>
             <TabsTrigger value="flyers">Flyers</TabsTrigger>
             <TabsTrigger value="social">Social</TabsTrigger>
-            <TabsTrigger value="materials">Materials</TabsTrigger>
             <TabsTrigger value="tickets">Tickets</TabsTrigger>
-            <TabsTrigger value="registrations" onClick={() => fetchRegistrations()}>Registrations</TabsTrigger>
-            <TabsTrigger value="reminders">Reminders</TabsTrigger>
             <TabsTrigger value="payments" onClick={() => fetchPayments()}>Payments</TabsTrigger>
-            <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit</TabsTrigger>
+            <TabsTrigger value="audit" onClick={() => fetchAuditLogs()}>Audit Logs</TabsTrigger>
           </TabsList>
 
           {/* Event Details Tab */}
@@ -548,57 +499,6 @@ const Manager = () => {
                       {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                   </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Check-In Tab */}
-          <TabsContent value="checkin">
-            <div className="space-y-6">
-              {/* Check-In Statistics */}
-              <CheckInStatistics />
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <QrCode className="w-5 h-5" /> Event Check-In
-                  </CardTitle>
-                  <CardDescription>
-                    Scan participant QR codes or enter registration codes manually
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {!isManager ? (
-                    <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-                      <AlertCircle className="h-4 w-4 text-amber-500" />
-                      <AlertTitle>Access Denied</AlertTitle>
-                      <AlertDescription>
-                        You need manager permissions to check in attendees.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <QRScanner 
-                      userId={user?.id}
-                      onCheckIn={(code) => {
-                        console.log("Checked in:", code);
-                        fetchRegistrations();
-                      }}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Activities Tab */}
-          <TabsContent value="activities">
-            <Card>
-              <CardContent className="p-6">
-                {isManager ? (
-                  <ActivitiesManager />
-                ) : (
-                  <p className="text-muted-foreground">You need manager permissions to edit activities.</p>
                 )}
               </CardContent>
             </Card>
@@ -792,37 +692,6 @@ const Manager = () => {
             </div>
           </TabsContent>
 
-          {/* Materials Tab */}
-          <TabsContent value="materials">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" /> Activity Materials Checklist
-                </CardTitle>
-                <CardDescription>
-                  Materials needed for each activity. Use this as a preparation checklist.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6">
-                  {Object.entries(activityMaterials).map(([activity, materials]) => (
-                    <div key={activity} className="border rounded-lg p-4">
-                      <h4 className="font-semibold text-lg mb-3 text-foreground">{activity}</h4>
-                      <ul className="grid sm:grid-cols-2 gap-2">
-                        {materials.map((material, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <span className="text-primary font-bold">•</span>
-                            {material}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Tickets Tab */}
           <TabsContent value="tickets">
             <Card>
@@ -858,216 +727,6 @@ const Manager = () => {
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Registrations Tab */}
-          <TabsContent value="registrations">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" /> Participant Registrations
-                </CardTitle>
-                <CardDescription>
-                  View all registered participants for the event.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!isManager ? (
-                  <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-                    <AlertCircle className="h-4 w-4 text-amber-500" />
-                    <AlertTitle>Access Denied</AlertTitle>
-                    <AlertDescription>
-                      You need manager permissions to view registrations.
-                    </AlertDescription>
-                  </Alert>
-                ) : isLoadingRegistrations ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading registrations...</div>
-                ) : registrations.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No registrations yet.</p>
-                    <Button variant="outline" className="mt-4" onClick={fetchRegistrations}>
-                      Refresh
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">Total: {registrations.length} registrations</p>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="text-left py-2 px-2">Name</th>
-                            <th className="text-left py-2 px-2">Code</th>
-                            <th className="text-left py-2 px-2">Church</th>
-                            <th className="text-left py-2 px-2">Age</th>
-                            <th className="text-left py-2 px-2">Check-In</th>
-                            <th className="text-left py-2 px-2">Reminder</th>
-                            <th className="text-left py-2 px-2">Registered</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {registrations.map((reg) => (
-                            <tr key={reg.id} className="border-b hover:bg-muted/50">
-                              <td className="py-2 px-2 font-medium">{reg.full_name}</td>
-                              <td className="py-2 px-2 font-mono text-xs">{reg.registration_code}</td>
-                              <td className="py-2 px-2 text-xs">{reg.church_name}</td>
-                              <td className="py-2 px-2">{reg.age_group}</td>
-                              <td className="py-2 px-2">
-                                {reg.checked_in ? (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                    ✓ {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : 'Yes'}
-                                  </span>
-                                ) : (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400">
-                                    Pending
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-2 px-2">
-                                {reg.reminder_sent ? (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                                    Sent
-                                  </span>
-                                ) : (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400">
-                                    Pending
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-2 px-2 text-xs">{new Date(reg.registered_at).toLocaleDateString()}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <Button variant="outline" onClick={fetchRegistrations}>Refresh</Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Reminders Tab */}
-          <TabsContent value="reminders">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" /> Send Event Reminders
-                </CardTitle>
-                <CardDescription>
-                  Send reminder emails to registered participants with venue directions and what to bring
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!isManager ? (
-                  <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-                    <AlertCircle className="h-4 w-4 text-amber-500" />
-                    <AlertTitle>Access Denied</AlertTitle>
-                    <AlertDescription>
-                      You need manager permissions to send reminder emails.
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="bg-muted/50 rounded-lg p-6 space-y-4">
-                      <h4 className="font-semibold">Reminder Email Preview</h4>
-                      <p className="text-sm text-muted-foreground">
-                        The reminder email will include:
-                      </p>
-                      <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                        <li>Event date, time, and venue</li>
-                        <li>Participant's registration code</li>
-                        <li>What to bring checklist (ID, Bible, pen, etc.)</li>
-                        <li>Dress code reminder (Smart Casual)</li>
-                        <li>Venue directions information</li>
-                        <li>Important reminders for the event</li>
-                      </ul>
-                    </div>
-
-                    {eventDetails && (
-                      <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-                        <h4 className="font-semibold text-sm mb-2">Event Info (will be included)</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <span className="text-muted-foreground">Date:</span>
-                          <span>{eventDetails.event_date}</span>
-                          <span className="text-muted-foreground">Time:</span>
-                          <span>{eventDetails.event_time}</span>
-                          <span className="text-muted-foreground">Venue:</span>
-                          <span>{eventDetails.venue}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Note</AlertTitle>
-                      <AlertDescription>
-                        Reminders will only be sent to participants who haven't received one yet.
-                        Each participant will only receive one reminder email.
-                      </AlertDescription>
-                    </Alert>
-
-                    <Button 
-                      onClick={async () => {
-                        if (!eventDetails) {
-                          toast({
-                            title: "Error",
-                            description: "Please set event details first.",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        
-                        setIsSendingReminders(true);
-                        try {
-                          const response = await fetch(
-                            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-reminder-emails`,
-                            {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                                "x-internal-secret": import.meta.env.VITE_INTERNAL_API_SECRET || "",
-                              },
-                              body: JSON.stringify({
-                                eventDate: eventDetails.event_date,
-                                eventTime: eventDetails.event_time,
-                                venue: eventDetails.venue,
-                              }),
-                            }
-                          );
-                          
-                          const result = await response.json();
-                          
-                          if (result.success) {
-                            toast({
-                              title: "Reminders Sent!",
-                              description: `Successfully sent ${result.sent} reminder emails.`,
-                            });
-                            fetchRegistrations();
-                          } else {
-                            throw new Error(result.error || "Failed to send reminders");
-                          }
-                        } catch (error: any) {
-                          toast({
-                            title: "Error",
-                            description: error.message || "Failed to send reminder emails.",
-                            variant: "destructive",
-                          });
-                        } finally {
-                          setIsSendingReminders(false);
-                        }
-                      }}
-                      disabled={isSendingReminders || !eventDetails}
-                      className="w-full"
-                      size="lg"
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      {isSendingReminders ? "Sending Reminders..." : "Send Reminder Emails"}
-                    </Button>
                   </div>
                 )}
               </CardContent>
