@@ -7,7 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, GripVertical, Eye, EyeOff, Plus, Save, X } from "lucide-react";
+import { Upload, Trash2, Eye, EyeOff, Plus, Save, X } from "lucide-react";
+
+// Import local assets for fallback display
+import sabbathSelfieImage from "@/assets/sabbath-selfie.jpg";
+import boardGamesImage from "@/assets/board-games.jpg";
+import characterChallengeImage from "@/assets/character-challenge.jpg";
+import visionBoardImage from "@/assets/vision-board.jpg";
+import faithGamesImage from "@/assets/faith-games.jpg";
+import praiseWorshipImage from "@/assets/praise-worship.jpg";
+import roundtableImage from "@/assets/roundtable-discussion.jpg";
+import teamBuildingImage from "@/assets/team-building.jpg";
 
 interface Activity {
   id: string;
@@ -18,6 +28,32 @@ interface Activity {
   display_order: number;
   is_active: boolean;
 }
+
+// Map local asset names to imported images
+const localAssetMap: Record<string, string> = {
+  "sabbath-selfie": sabbathSelfieImage,
+  "board-games": boardGamesImage,
+  "character-challenge": characterChallengeImage,
+  "vision-board": visionBoardImage,
+  "faith-games": faithGamesImage,
+  "praise-worship": praiseWorshipImage,
+  "roundtable-discussion": roundtableImage,
+  "team-building": teamBuildingImage,
+};
+
+// Helper function to get display image URL
+const getDisplayImageUrl = (imageUrl: string): string => {
+  // If it's a local asset name, return the imported image
+  if (localAssetMap[imageUrl]) {
+    return localAssetMap[imageUrl];
+  }
+  // If it starts with http, it's already a full URL (storage)
+  if (imageUrl.startsWith("http")) {
+    return imageUrl;
+  }
+  // Otherwise return placeholder
+  return "/placeholder.svg";
+};
 
 const iconOptions = [
   "Users", "Heart", "MessageCircle", "Music", "Utensils", 
@@ -335,7 +371,7 @@ const ActivitiesManager = () => {
                 {/* Image Section */}
                 <div className="relative w-32 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                   <img
-                    src={activity.image_url}
+                    src={getDisplayImageUrl(activity.image_url)}
                     alt={activity.title}
                     className="w-full h-full object-cover"
                   />
