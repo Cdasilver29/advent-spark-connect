@@ -25,12 +25,10 @@ const Hero = () => {
           transform: `translateY(${offsetY * 0.4}px) scale(1.1)`,
         }}
       >
-        {/* Refined overlay with soft gradient for clarity and readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/55 to-primary-dark/65" />
-        {/* Light glassmorphism accent for modern look */}
-        <div className="absolute inset-0 backdrop-blur-[1px]" />
+        {/* Light overlay for text readability while keeping image clear */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/40 to-primary-dark/50" />
         {/* Subtle vignette for depth */}
-        <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/15" />
+        <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/10" />
       </div>
 
       {/* Animated Background Elements */}
