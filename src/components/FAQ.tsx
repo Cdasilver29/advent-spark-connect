@@ -74,7 +74,7 @@ const FAQ = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container px-4">
-        <div className="text-center mb-16 animate-fade-in">
+        <ScrollAnimationWrapper animation="fadeUp" className="text-center mb-16">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <HelpCircle className="w-8 h-8 text-primary" />
@@ -86,7 +86,7 @@ const FAQ = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Everything you need to know about Singles Spark
           </p>
-        </div>
+        </ScrollAnimationWrapper>
 
         <div className="max-w-3xl mx-auto">
           {Object.entries(groupedFaqs).map(([category, categoryFaqs], categoryIndex) => (

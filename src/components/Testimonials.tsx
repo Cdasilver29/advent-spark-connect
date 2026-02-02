@@ -80,7 +80,7 @@ const Testimonials = () => {
   return (
     <section className="py-20 bg-muted/30 overflow-hidden">
       <div className="container px-4">
-        <div className="text-center mb-16 animate-fade-in">
+        <ScrollAnimationWrapper animation="fadeUp" className="text-center mb-16">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
               <Heart className="w-8 h-8 text-primary" fill="currentColor" />
@@ -92,7 +92,7 @@ const Testimonials = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Hear from Adventist singles who found meaningful connections and spiritual growth
           </p>
-        </div>
+        </ScrollAnimationWrapper>
 
         {/* Carousel Container */}
         <ScrollAnimationWrapper animation="scaleUp" delay={200}>

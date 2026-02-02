@@ -77,14 +77,14 @@ const EventDetails = () => {
       </div>
 
       <div className="container px-4 relative z-10">
-        <div className="text-center mb-16 animate-fade-in">
+        <ScrollAnimationWrapper animation="fadeUp" className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Event Details
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Everything you need to know about joining us for this special evening
           </p>
-        </div>
+        </ScrollAnimationWrapper>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
           {details.map((detail, index) => (
