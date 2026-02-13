@@ -131,7 +131,7 @@ const ImageGallery = ({ images, title, subtitle }: ImageGalleryProps) => {
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
               

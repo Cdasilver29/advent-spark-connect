@@ -232,7 +232,7 @@ const Activities = () => {
                 <img 
                   src={activity.image} 
                   alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
                 <div className="absolute bottom-4 left-6 right-6">
