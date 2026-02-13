@@ -130,7 +130,7 @@ const About = () => {
                 <img 
                   src={feature.image} 
                   alt={feature.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
                 <div className="absolute bottom-4 left-4">
